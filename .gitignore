@@ -351,5 +351,5 @@ MigrationBackup/
 
 
 #Config Files
-firebase_options.dart
-google-services.json
+android/app/google-services.json
+lib/firebase_options.dart
