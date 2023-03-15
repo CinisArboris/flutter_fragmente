@@ -348,8 +348,3 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-
-
-#Config Files
-android/app/google-services.json
-lib/firebase_options.dart
