@@ -37,7 +37,7 @@ class MyHomePage extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const CLChecklist()),
+              MaterialPageRoute(builder: (context) => CLChecklist()),
             );
           },
           child: const Text('Ir a CLChecklist'),

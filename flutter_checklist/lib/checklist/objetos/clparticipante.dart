@@ -5,5 +5,5 @@ class CLParticipante {
   late String codigo;
   late String nombres;
   late String tipoParticipante;
-  late List<CLDocumento> documentos;
+  late List<List<CLDocumento>> documentosPorNivel;
 }
