@@ -2,6 +2,7 @@ package com.cinisarboris.example.u02.alerta_caida;
 
 import android.content.Context;
 import android.media.AudioManager;
+import android.os.Vibrator;
 
 public class AudioHelper {
 
@@ -22,5 +23,13 @@ public class AudioHelper {
                 maxVolume,
                 AudioManager.FLAG_SHOW_UI
         );
+    }
+    
+    // Método para activar la vibración
+    public void vibratePhone() {
+        Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator != null) {
+            vibrator.vibrate(500);
+        }
     }
 }
