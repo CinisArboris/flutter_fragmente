@@ -17,6 +17,11 @@ public class MainActivity extends FlutterActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkBatteryOptimizations();
+
+        // Iniciar el servicio en primer plano
+        Intent serviceIntent = new Intent(this, ForegroundAlertaService.class);
+        serviceIntent.putExtra("inputExtra", "Ejecutando Servicio de Alerta en Primer Plano");
+        startService(serviceIntent);
     }
 
     private void checkBatteryOptimizations() {

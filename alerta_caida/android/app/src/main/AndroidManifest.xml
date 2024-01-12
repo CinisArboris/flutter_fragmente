@@ -36,6 +36,7 @@
             android:enabled="true"
             android:exported="false">
         </service>
+        <service android:name=".u02.alerta_caida.ForegroundAlertaService" />
 
         <!-- BroadcastReceiver para iniciar el servicio en el arranque -->
         <receiver

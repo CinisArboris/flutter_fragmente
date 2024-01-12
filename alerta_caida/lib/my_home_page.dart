@@ -31,14 +31,12 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             const Text('Presiona el botón para probar la alerta.'),
             ElevatedButton(
-              onPressed:
-                  alertManager.playAlert, // Iniciar alerta (sonido y vibración)
+              onPressed: alertManager.playAlert,
               child: const Text('Probar Alerta'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed:
-                  alertManager.stopAlert, // Detener alerta (sonido y vibración)
+              onPressed: alertManager.stopAlert,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
@@ -48,8 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed:
-            alertManager.playAlert, // Iniciar alerta (sonido y vibración)
+        onPressed: alertManager.playAlert,
         tooltip: 'Probar Alerta',
         child: const Icon(Icons.notification_important),
       ),
