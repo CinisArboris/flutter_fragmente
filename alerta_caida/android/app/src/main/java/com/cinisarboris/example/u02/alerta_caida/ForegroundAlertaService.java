@@ -25,8 +25,8 @@ public class ForegroundAlertaService extends Service {
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Servicio de Alerta en Primer Plano")
                 .setContentText(input)
-                .setSmallIcon(R.drawable.ic_notification) // Asegúrate de tener un icono ic_notification en tus recursos.
-                .build();
+                .setSmallIcon(R.drawable.ic_notification)
+                .build();                                                                    
         startForeground(1, notification);
 
         // Aquí puedes colocar la lógica de tu servicio.
