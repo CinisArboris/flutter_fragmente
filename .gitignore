@@ -350,3 +350,4 @@ MigrationBackup/
 .ionide/
 main.ps1
 reset.ps1
+*.mp3
