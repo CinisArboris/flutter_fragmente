@@ -5,6 +5,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class ImageHandler {
+  Future<File?> pickImageFromGallery() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    return pickedFile != null ? File(pickedFile.path) : null;
+  }
+
   Future<File?> pickRandomImage() async {
     final picker = ImagePicker();
     final pickedFileList = await picker.pickMultiImage();
@@ -19,9 +25,8 @@ class ImageHandler {
 
   Future<File> saveImage(File image) async {
     final directory = await getApplicationDocumentsDirectory();
-    final path = directory.path;
-    const String fileName = 'test.jpg';
-    final File localImage = await image.copy('$path/$fileName');
+    final fileName = image.path.split('/').last;
+    final File localImage = await image.copy('${directory.path}/$fileName');
     return localImage;
   }
 
@@ -31,7 +36,15 @@ class ImageHandler {
         "${now.day}_${now.month}_${now.year}_${now.hour}_${now.minute}_${now.second}";
     String folderName = '$alias\_$formattedDate';
     FirebaseStorage storage = FirebaseStorage.instance;
-    Reference ref = storage.ref().child(folderName).child('test.jpg');
+    Reference ref =
+        storage.ref().child(folderName).child(image.path.split('/').last);
     await ref.putFile(image);
+  }
+
+  String generateRandomAlias() {
+    const _alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    final _random = Random();
+    return String.fromCharCodes(Iterable.generate(
+        3, (_) => _alphabet.codeUnitAt(_random.nextInt(_alphabet.length))));
   }
 }
