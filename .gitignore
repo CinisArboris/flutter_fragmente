@@ -357,3 +357,4 @@ fstorage/android/app/google-services.json
 fstorage/ios/firebase_app_id_file.json
 fstorage/ios/Runner/GoogleService-Info.plist
 fstorage/lib/firebase_options.dart
+fstorage/android/google-services.json
