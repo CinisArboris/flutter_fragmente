@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:fstorage/firebase/f_s_s.dart';
+import 'image_uploader.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key, required this.title});
@@ -12,18 +12,13 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Future<File?>? _imageFuture;
-  final FirebaseStorageService _firebaseStorageService =
-      FirebaseStorageService();
+  final ImageUploader _imageUploader = ImageUploader();
 
   void _uploadImageFromGallery() {
     setState(() {
-      _imageFuture = _firebaseStorageService.uploadImageFromGallery();
-    });
-  }
-
-  void _uploadRandomImage() {
-    setState(() {
-      _imageFuture = _firebaseStorageService.uploadRandomImage();
+      _imageFuture = _imageUploader
+          .pickImage()
+          .then((file) => _imageUploader.uploadImage(file, "gallery_images"));
     });
   }
 
@@ -57,17 +52,8 @@ class _HomeState extends State<Home> {
               onPressed: _uploadImageFromGallery,
               child: const Text('Subir Imagen desde Galería'),
             ),
-            ElevatedButton(
-              onPressed: _uploadRandomImage,
-              child: const Text('Subir Imagen Aleatoria de Galería'),
-            ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _uploadRandomImage,
-        tooltip: 'Subir Imagen',
-        child: const Icon(Icons.cloud_upload),
       ),
     );
   }
