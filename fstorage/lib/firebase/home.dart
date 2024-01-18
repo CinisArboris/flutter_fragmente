@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'image_uploader.dart';
+import 'package:fstorage/firebase/image_uploader.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key, required this.title});
@@ -30,29 +30,23 @@ class _HomeState extends State<Home> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            FutureBuilder<File?>(
-              future: _imageFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (snapshot.hasData) {
-                  return Image.file(snapshot.data!);
-                }
-                return const Text('No se ha seleccionado ninguna imagen.');
-              },
-            ),
-            ElevatedButton(
-              onPressed: _uploadImageFromGallery,
-              child: const Text('Subir Imagen desde Galería'),
-            ),
-          ],
+        child: FutureBuilder<File?>(
+          future: _imageFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return const Icon(Icons.error, color: Colors.red, size: 48);
+            } else if (snapshot.hasData) {
+              return const Icon(Icons.check_circle,
+                  color: Colors.green, size: 48);
+            } else {
+              return ElevatedButton(
+                onPressed: _uploadImageFromGallery,
+                child: const Text('Subir Imagen desde Galería'),
+              );
+            }
+          },
         ),
       ),
     );
