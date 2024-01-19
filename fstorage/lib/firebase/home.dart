@@ -18,6 +18,7 @@ class _HomeState extends State<Home> {
   final ImageUploader _imageUploader = ImageUploader();
   String _uploadMessage = '';
   bool _isUploading = false;
+  bool _showSpinner = false;
 
   Future<void> _uploadImageFromGallery() async {
     setState(() {
@@ -26,15 +27,8 @@ class _HomeState extends State<Home> {
       _isUploading = true;
     });
 
-    // Mostrar el spinner durante 3 segundos
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
+    // Mostrar el spinner
+    _showSpinner = true;
 
     try {
       await Future.delayed(const Duration(seconds: 3)); // Esperar 3 segundos
@@ -44,8 +38,11 @@ class _HomeState extends State<Home> {
         _uploadMessage = 'Error al cargar la imagen: $error';
       });
     } finally {
-      // Ocultar el spinner
-      Navigator.of(context).pop(); // Cerrar el spinner
+      // Ocultar el spinner después de 3 segundos
+      await Future.delayed(const Duration(seconds: 3));
+
+      // Cerrar el spinner
+      _showSpinner = false;
 
       setState(() {
         _isUploading = false;
@@ -105,6 +102,7 @@ class _HomeState extends State<Home> {
               child: Text(
                   _isUploading ? 'Cargando...' : 'Subir Imagen desde Galería'),
             ),
+            if (_showSpinner) const CircularProgressIndicator(),
           ],
         ),
       ),
