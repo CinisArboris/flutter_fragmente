@@ -17,14 +17,16 @@ class _HomeState extends State<Home> {
   File? _selectedImage;
   final ImageUploader _imageUploader = ImageUploader();
   String _uploadMessage = '';
+  bool _isUploading = false;
 
   Future<void> _uploadImageFromGallery() async {
     setState(() {
       _isImageUploaded = false;
       _uploadMessage = '';
+      _isUploading = true;
     });
 
-    // Mostrar spinner durante 3 segundos
+    // Mostrar el spinner durante 3 segundos
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -34,42 +36,34 @@ class _HomeState extends State<Home> {
       },
     );
 
-    // Esperar 3 segundos antes de continuar
-    await Future.delayed(const Duration(seconds: 3));
+    try {
+      await Future.delayed(const Duration(seconds: 3)); // Esperar 3 segundos
+      await _imageUploader.uploadImage("gallery_images");
+    } catch (error) {
+      setState(() {
+        _uploadMessage = 'Error al cargar la imagen: $error';
+      });
+    } finally {
+      // Ocultar el spinner
+      Navigator.of(context).pop(); // Cerrar el spinner
 
-    // Realizar la llamada asincrónica
-    if (_selectedImage != null) {
-      try {
-        final folderName = await _imageUploader.uploadImage("gallery_images");
-        if (folderName != null) {
-          setState(() {
-            _isImageUploaded = true;
-            _uploadMessage = 'La imagen se cargó con éxito.';
-          });
-          Navigator.of(context).pop(); // Cerrar el spinner
-          _showSuccessDialog(); // Mostrar el AlertDialog de éxito
-        } else {
-          setState(() {
-            _uploadMessage = 'Error al cargar la imagen.';
-          });
-          Navigator.of(context).pop(); // Cerrar el spinner en caso de error
-        }
-      } catch (error) {
-        setState(() {
-          _uploadMessage = 'Error al cargar la imagen: $error';
-        });
-        Navigator.of(context).pop(); // Cerrar el spinner en caso de error
-      }
+      setState(() {
+        _isUploading = false;
+        _isImageUploaded = true;
+        _uploadMessage = 'La imagen se cargó con éxito.';
+      });
+
+      // Mostrar el AlertDialog de éxito
+      _showSuccessDialog();
     }
   }
 
   void _showSuccessDialog() {
-    // Mostrar un AlertDialog informativo
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.orange, // Color de fondo naranja
+          backgroundColor: Colors.orange,
           title: const Text('Archivo enviado'),
           content: const Text('La solicitud se ha enviado con éxito.'),
           actions: [
@@ -107,8 +101,9 @@ class _HomeState extends State<Home> {
               ),
             ),
             ElevatedButton(
-              onPressed: _uploadImageFromGallery,
-              child: const Text('Subir Imagen desde Galería'),
+              onPressed: _isUploading ? null : _uploadImageFromGallery,
+              child: Text(
+                  _isUploading ? 'Cargando...' : 'Subir Imagen desde Galería'),
             ),
           ],
         ),
