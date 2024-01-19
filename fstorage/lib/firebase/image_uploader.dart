@@ -13,8 +13,8 @@ class ImageUploader {
     return pickedFile != null ? File(pickedFile.path) : null;
   }
 
-  Future<void> uploadImage(File? image, String folderName) async {
-    if (image == null) return;
+  Future<String?> uploadImage(File? image, String folderName) async {
+    if (image == null) return null;
 
     final directory = await getApplicationDocumentsDirectory();
     final fileName = image.path.split('/').last;
@@ -24,7 +24,7 @@ class ImageUploader {
       final ref = _storage.ref().child(folderName).child(fileName);
       await ref.putFile(localImage);
 
-      // Aquí ya no necesitas procesar ni imprimir la URL, solo completa la subida.
+      return await ref.getDownloadURL();
     } on FirebaseException catch (e) {
       if (kDebugMode) {
         print('Error de Firebase: ${e.code}, ${e.message}');
