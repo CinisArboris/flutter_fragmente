@@ -11,14 +11,20 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Future<File?>? _imageFuture;
+  bool _isUploading = false;
+
   final ImageUploader _imageUploader = ImageUploader();
 
   void _uploadImageFromGallery() {
-    setState(() {
-      _imageFuture = _imageUploader
-          .pickImage()
-          .then((file) => _imageUploader.uploadImage(file, "gallery_images"));
+    _imageUploader.pickImage().then((file) {
+      setState(() {
+        _isUploading = true;
+      });
+      return _imageUploader.uploadImage(file, "gallery_images");
+    }).then((_) {
+      setState(() {
+        _isUploading = false;
+      });
     });
   }
 
@@ -30,23 +36,18 @@ class _HomeState extends State<Home> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: FutureBuilder<File?>(
-          future: _imageFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return const Icon(Icons.error, color: Colors.red, size: 48);
-            } else if (snapshot.hasData) {
-              return const Icon(Icons.check_circle,
-                  color: Colors.green, size: 48);
-            } else {
-              return ElevatedButton(
-                onPressed: _uploadImageFromGallery,
-                child: const Text('Subir Imagen desde Galería'),
-              );
-            }
-          },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_isUploading)
+              const CircularProgressIndicator()
+            else
+              const Icon(Icons.check_circle, color: Colors.green, size: 48),
+            ElevatedButton(
+              onPressed: _uploadImageFromGallery,
+              child: const Text('Subir Imagen desde Galería'),
+            ),
+          ],
         ),
       ),
     );

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,8 +13,8 @@ class ImageUploader {
     return pickedFile != null ? File(pickedFile.path) : null;
   }
 
-  Future<File?> uploadImage(File? image, String folderName) async {
-    if (image == null) return null;
+  Future<void> uploadImage(File? image, String folderName) async {
+    if (image == null) return;
 
     final directory = await getApplicationDocumentsDirectory();
     final fileName = image.path.split('/').last;
@@ -23,24 +22,9 @@ class ImageUploader {
 
     try {
       final ref = _storage.ref().child(folderName).child(fileName);
-      UploadTask uploadTask = ref.putFile(localImage);
+      await ref.putFile(localImage);
 
-      TaskSnapshot snapshot = await uploadTask;
-
-      if (snapshot.state == TaskState.success) {
-        // Aquí puedes agregar cualquier procesamiento adicional después de una subida exitosa
-        final downloadUrl = await snapshot.ref.getDownloadURL();
-        if (kDebugMode) {
-          print('Carga exitosa. URL: $downloadUrl');
-        }
-        // Por ejemplo, podrías devolver la URL de descarga en lugar del archivo local
-        return localImage; // o return downloadUrl;
-      } else {
-        if (kDebugMode) {
-          print('Error en la subida. Estado: ${snapshot.state}');
-        }
-        return null;
-      }
+      // Aquí ya no necesitas procesar ni imprimir la URL, solo completa la subida.
     } on FirebaseException catch (e) {
       if (kDebugMode) {
         print('Error de Firebase: ${e.code}, ${e.message}');
