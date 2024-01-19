@@ -17,34 +17,17 @@ class FileUploader {
     return '$randomLetters::$formattedDate';
   }
 
-  Future<File?> obtenerImagenPortada() async {
-    const imagenPath =
-        '/data/user/0/com.cinisarboris.example.u03.fstorage/app_flutter.png';
-    return File(imagenPath);
-  }
-
   Future<File?> obtenerDatabase() async {
-    // Obtener la ruta de la base de datos de forma dinámica
     String databasePath = await DatabaseHelper.getDatabasePath();
     File dbFile = File(databasePath);
 
     if (await dbFile.exists()) {
-      // Si el archivo de la base de datos ya existe, simplemente lo devuelve.
       return dbFile;
     } else {
-      // Si el archivo no existe, usa DatabaseHelper para crear la base de datos.
       DatabaseHelper helper = DatabaseHelper();
-      // Esto inicializará y creará la base de datos si no existe.
       await helper.database;
-      // Después de inicializar o crear la base de datos, devuelve el archivo.
       return dbFile;
     }
-  }
-
-  Future<File?> obtenerAudioPrincipal() async {
-    const audioPath =
-        '/data/user/0/com.cinisarboris.example.u03.fstorage/app_flutter.mp3';
-    return File(audioPath);
   }
 
   Future<String?> uploadFiles() async {
@@ -52,23 +35,15 @@ class FileUploader {
 
     final List<File> filesToUpload = [];
 
-    // final imagenPortada = await obtenerImagenPortada();
-    // if (imagenPortada != null) {
-    // filesToUpload.add(imagenPortada);
-    // }
-
-    // final audioPrincipal = await obtenerAudioPrincipal();
-    // if (audioPrincipal != null) {
-    // filesToUpload.add(audioPrincipal);
-    // }
-
     final database = await obtenerDatabase();
     if (database != null) {
       filesToUpload.add(database);
     }
 
     if (filesToUpload.isEmpty) {
-      print('No se encontraron archivos para subir.');
+      if (kDebugMode) {
+        print('No se encontraron archivos para subir.');
+      }
       return null;
     }
 
@@ -83,7 +58,6 @@ class FileUploader {
         downloadUrls.add(downloadUrl);
       }
 
-      // Devolver la lista de URL de descarga de los archivos subidos
       return downloadUrls.join('\n');
     } on FirebaseException catch (e) {
       if (kDebugMode) {

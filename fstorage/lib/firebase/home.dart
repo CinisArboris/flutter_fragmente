@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fstorage/firebase/image_details.dart';
 import 'package:fstorage/firebase/file_uploader.dart';
@@ -28,25 +29,25 @@ class _HomeState extends State<Home> {
       _showSpinner = true;
     });
 
-    // Envía la petición de subida a Firebase
     _imageUploader.uploadFiles().then((_) {
-      print("Subida iniciada");
+      if (kDebugMode) {
+        print("Subida iniciada");
+      }
     }).catchError((error) {
-      print("Error al subir: $error");
+      if (kDebugMode) {
+        print("Error al subir: $error");
+      }
     });
 
-    // Espera 3 segundos
     await Future.delayed(const Duration(seconds: 3));
 
-    // Actualiza el estado para reflejar la finalización y muestra el diálogo
     setState(() {
       _isUploading = false;
       _isImageUploaded = true;
       _uploadMessage = 'La imagen se cargó con éxito.';
-      _showSpinner = false; // Apagar el spinner
+      _showSpinner = false;
     });
 
-    // Mostrar el AlertDialog de éxito
     _showSuccessDialog();
   }
 
