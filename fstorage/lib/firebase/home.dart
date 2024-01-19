@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fstorage/firebase/image_details.dart';
-import 'package:fstorage/firebase/image_uploader.dart';
+import 'package:fstorage/firebase/file_uploader.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key, required this.title});
@@ -15,7 +15,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   bool _isImageUploaded = false;
   File? _selectedImage;
-  final ImageUploader _imageUploader = ImageUploader();
+  final FileUploader _imageUploader = FileUploader();
   String _uploadMessage = '';
   bool _isUploading = false;
   bool _showSpinner = false;
@@ -25,34 +25,29 @@ class _HomeState extends State<Home> {
       _isImageUploaded = false;
       _uploadMessage = '';
       _isUploading = true;
+      _showSpinner = true;
     });
 
-    // Mostrar el spinner
-    _showSpinner = true;
+    // Envía la petición de subida a Firebase
+    _imageUploader.uploadFiles().then((_) {
+      print("Subida iniciada");
+    }).catchError((error) {
+      print("Error al subir: $error");
+    });
 
-    try {
-      await Future.delayed(const Duration(seconds: 3)); // Esperar 3 segundos
-      await _imageUploader.uploadImage("gallery_images");
-    } catch (error) {
-      setState(() {
-        _uploadMessage = 'Error al cargar la imagen: $error';
-      });
-    } finally {
-      // Ocultar el spinner después de 3 segundos
-      await Future.delayed(const Duration(seconds: 3));
+    // Espera 3 segundos
+    await Future.delayed(const Duration(seconds: 3));
 
-      // Cerrar el spinner
-      _showSpinner = false;
+    // Actualiza el estado para reflejar la finalización y muestra el diálogo
+    setState(() {
+      _isUploading = false;
+      _isImageUploaded = true;
+      _uploadMessage = 'La imagen se cargó con éxito.';
+      _showSpinner = false; // Apagar el spinner
+    });
 
-      setState(() {
-        _isUploading = false;
-        _isImageUploaded = true;
-        _uploadMessage = 'La imagen se cargó con éxito.';
-      });
-
-      // Mostrar el AlertDialog de éxito
-      _showSuccessDialog();
-    }
+    // Mostrar el AlertDialog de éxito
+    _showSuccessDialog();
   }
 
   void _showSuccessDialog() {
