@@ -1,13 +1,24 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:onfirebase/firebase_options.dart';
 import 'package:onfirebase/my_home_page.dart';
+import 'fcm_service.dart';
+import 'firebase_options.dart';
 
-Future<void> main() async {
+// Función de manejo de mensajes en segundo plano
+Future<void> backgroundMessageHandler(RemoteMessage message) async {
+  print('Handling a background message: ${message.messageId}');
+}
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FCMService fcmService = FCMService();
+  await fcmService.initFCM();
+  FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
 
   runApp(const MyApp());
 }
@@ -27,3 +38,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+// Aquí va el resto del código de FCMService, sin cambios.
