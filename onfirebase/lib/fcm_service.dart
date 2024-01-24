@@ -8,7 +8,7 @@ class FCMService {
     // Solicita permisos para iOS
     NotificationSettings settings = await _messaging.requestPermission();
     if (kDebugMode) {
-      print('User granted permission: ${settings.authorizationStatus}');
+      print('devLog: User granted permission: ${settings.authorizationStatus}');
     }
 
     // Suscribirse a un tópico
@@ -27,13 +27,13 @@ class FCMService {
     // Manejo de mensajes en primer plano
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) {
-        print('Received a message: ${message.messageId}');
+        print('devLog: Received a message: ${message.messageId}');
         if (message.notification != null) {
-          print('Message title: ${message.notification!.title}');
-          print('Message body: ${message.notification!.body}');
+          print('devLog: Message title: ${message.notification!.title}');
+          print('devLog: Message body: ${message.notification!.body}');
         }
         if (message.data.isNotEmpty) {
-          print('Message data: ${message.data}');
+          print('devLog: Message data: ${message.data}');
         }
       }
       // Aquí puedes manejar el mensaje como desees.
