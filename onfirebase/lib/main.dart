@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:onfirebase/my_home_page.dart';
 import 'fcm_service.dart';
@@ -7,7 +8,9 @@ import 'firebase_options.dart';
 
 // Función de manejo de mensajes en segundo plano
 Future<void> backgroundMessageHandler(RemoteMessage message) async {
-  print('Handling a background message: ${message.messageId}');
+  if (kDebugMode) {
+    print('Handling a background message: ${message.messageId}');
+  }
 }
 
 void main() async {
@@ -38,5 +41,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// Aquí va el resto del código de FCMService, sin cambios.
