@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "151925055298",
+    "firebase_url": "https://gitfragmente-default-rtdb.firebaseio.com",
+    "project_id": "gitfragmente",
+    "storage_bucket": "gitfragmente.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:151925055298:android:330771647366552d5972db",
+        "android_client_info": {
+          "package_name": "com.cinisarboris.example.u03.fstorage"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiD4WBSnpAytJObMmeEPfnznubFoIb3Jo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:151925055298:android:b4e789f161c75dcb5972db",
+        "android_client_info": {
+          "package_name": "com.cinisarboris.example.u05.onfirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiD4WBSnpAytJObMmeEPfnznubFoIb3Jo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
