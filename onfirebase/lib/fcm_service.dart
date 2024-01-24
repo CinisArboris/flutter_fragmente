@@ -5,7 +5,7 @@ class FCMService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   Future<void> initFCM() async {
-    // Solicita permisos para iOS
+    // Solicita permisos para iOS y Android
     NotificationSettings settings = await _messaging.requestPermission();
     if (kDebugMode) {
       print('devLog: User granted permission: ${settings.authorizationStatus}');
