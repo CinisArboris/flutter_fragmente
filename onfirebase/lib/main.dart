@@ -9,7 +9,12 @@ import 'firebase_options.dart';
 // Función de manejo de mensajes en segundo plano
 Future<void> backgroundMessageHandler(RemoteMessage message) async {
   if (kDebugMode) {
-    print('Handling a background message: ${message.messageId}');
+    print('devLog: Handling a background message: ${message.messageId}');
+    print('devLog: Message data: ${message.data}');
+    if (message.notification != null) {
+      print('devLog: Message title: ${message.notification!.title}');
+      print('devLog: Message body: ${message.notification!.body}');
+    }
   }
 }
 
@@ -41,3 +46,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+// Asegúrate de que la clase MyHomePage y FCMService estén definidas correctamente
