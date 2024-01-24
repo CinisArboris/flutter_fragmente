@@ -19,14 +19,15 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
 }
 
 void main() async {
+  /* ======================================================================== */
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   FCMService fcmService = FCMService();
   await fcmService.initFCM();
   FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+  /* ======================================================================== */
 
   runApp(const MyApp());
 }
@@ -46,5 +47,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// Asegúrate de que la clase MyHomePage y FCMService estén definidas correctamente
