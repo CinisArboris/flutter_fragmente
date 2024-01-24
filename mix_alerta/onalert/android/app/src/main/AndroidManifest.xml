@@ -1,4 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- =============================================================================== -->
+    <!-- Permiso para recibir el evento de arranque completado -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Permiso para vibración -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Permiso para mantener el dispositivo despierto -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Permiso para mostrar notificaciones -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- =============================================================================== -->
+
     <application
         android:label="onalert"
         android:name="${applicationName}"
@@ -29,5 +41,27 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- =============================================================================== -->
+        <!-- Servicio en segundo plano para alertas -->
+        <service
+            android:name=".u02.alerta_caida.AlertaCaidaService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+        <!-- Servicio en primer plano para mostrar notificaciones -->
+        <service android:name=".u02.alerta_caida.ForegroundAlertaService" />
+
+        <!-- BroadcastReceiver para iniciar el servicio en el arranque -->
+        <receiver
+            android:name=".u02.alerta_caida.BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <!-- =============================================================================== -->
     </application>
 </manifest>
