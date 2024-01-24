@@ -1,4 +1,5 @@
 // Asumiendo que la clase PlatformAudio ya está definida en otro lugar de tu proyecto
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class PlatformAudio {
@@ -8,7 +9,9 @@ class PlatformAudio {
     try {
       await platform.invokeMethod('setVolumeToMax');
     } on PlatformException catch (e) {
-      print("Failed to set volume: '${e.message}'.");
+      if (kDebugMode) {
+        print("Failed to set volume: '${e.message}'.");
+      }
     }
   }
 
@@ -16,7 +19,9 @@ class PlatformAudio {
     try {
       await platform.invokeMethod('vibratePhone');
     } on PlatformException catch (e) {
-      print("Failed to vibrate: '${e.message}'.");
+      if (kDebugMode) {
+        print("Failed to vibrate: '${e.message}'.");
+      }
     }
   }
 }

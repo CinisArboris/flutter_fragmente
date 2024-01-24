@@ -1,6 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cinisarboris.example.u02.alerta_caida">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cinisarboris.example.u02.alerta_caida">
 
+    <!-- =============================================================================== -->
     <!-- Permiso para recibir el evento de arranque completado -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Permiso para vibración -->
@@ -9,13 +9,12 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- Permiso para mostrar notificaciones -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- =============================================================================== -->
 
     <application
         android:label="alerta_caida"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-
-        <!-- Actividad principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -44,6 +43,7 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
+        <!-- =============================================================================== -->
         <!-- Servicio en segundo plano para alertas -->
         <service
             android:name=".u02.alerta_caida.AlertaCaidaService"
@@ -63,5 +63,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+        <!-- =============================================================================== -->
     </application>
 </manifest>

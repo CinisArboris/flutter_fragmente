@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'package:alerta_caida/plartorm_audio.dart';
+import 'package:alerta_caida/platform_audio.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class AlertManager {
@@ -23,7 +24,9 @@ class AlertManager {
     try {
       await PlatformAudio.setVolumeToMax();
     } on PlatformException catch (e) {
-      print("Failed to set volume: '${e.message}'.");
+      if (kDebugMode) {
+        print("Failed to set volume: '${e.message}'.");
+      }
     }
   }
 
@@ -41,7 +44,9 @@ class AlertManager {
     try {
       await PlatformAudio.vibratePhone();
     } on PlatformException catch (e) {
-      print("Failed to vibrate: '${e.message}'.");
+      if (kDebugMode) {
+        print("Failed to vibrate: '${e.message}'.");
+      }
     }
   }
 
