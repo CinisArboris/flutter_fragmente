@@ -30,9 +30,11 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
+        <!-- ======================================================================== -->
         <!-- Agrega esta línea dentro de <application> para definir el canal de notificación -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id"/>
+        <!-- ======================================================================== -->
     </application>
 </manifest>
