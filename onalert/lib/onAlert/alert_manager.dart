@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:onalert/platform_audio.dart';
+import 'package:onalert/onAlert/platform_audio.dart';
 
 class AlertManager {
   final AudioPlayer player = AudioPlayer();
