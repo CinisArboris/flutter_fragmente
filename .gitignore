@@ -360,3 +360,8 @@ fstorage/lib/firebase_options.dart
 fstorage/android/google-services.json
 onfirebase/android/app/google-services.json
 onfirebase/lib/firebase_options.dart
+
+# 
+firebase_options.dart
+firebase.json
+google-services.json
