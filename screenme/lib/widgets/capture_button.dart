@@ -20,6 +20,7 @@ class CaptureButtonState extends State<CaptureButton> {
     final directory = (await getApplicationDocumentsDirectory()).path;
     final path = '$directory/screen_recording.mp4';
     _controller.start();
+    debugPrint('Recording started. Saving to: $path');
     setState(() {
       isRecording = true;
       _remainingTime = 5;
@@ -36,10 +37,12 @@ class CaptureButtonState extends State<CaptureButton> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Recording saved to gallery')),
       );
+      debugPrint('Recording saved to gallery: $path');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Recording failed to save')),
       );
+      debugPrint('Recording failed to save: $path');
     }
     setState(() {
       isRecording = false;
