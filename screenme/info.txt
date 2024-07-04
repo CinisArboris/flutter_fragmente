@@ -1,0 +1,9 @@
+lib/
+├── main.dart
+├── screens/
+│   ├── home_screen.dart
+├── widgets/
+│   ├── capture_button.dart
+│   ├── form_widget.dart
+├── utils/
+│   ├── screenshot_helper.dart
