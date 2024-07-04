@@ -3,7 +3,7 @@ lib/
 ├── screens/
 │   ├── home_screen.dart
 ├── widgets/
-│   ├── capture_button.dart
+│   ├── button_capture.dart
 │   ├── form_widget.dart
 ├── utils/
 │   ├── screenshot_helper.dart

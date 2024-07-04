@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:screenme/widgets/button_capture.dart';
 import 'package:screenme/widgets/form_simple.dart';
 import 'package:screenshot/screenshot.dart';
+import '../widgets/button_capture.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
