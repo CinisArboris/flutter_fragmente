@@ -3,24 +3,24 @@ import 'package:screenme/widgets/capture_button.dart';
 import 'package:screenme/widgets/widget_form.dart';
 
 class HomeScreen extends StatelessWidget {
-  final GlobalKey _repaintBoundaryKey = GlobalKey();
-
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey repaintBoundaryKey = GlobalKey();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("ScreenMe"),
         actions: [
-          CaptureButton(repaintBoundaryKey: _repaintBoundaryKey),
+          CaptureButton(repaintBoundaryKey: repaintBoundaryKey),
         ],
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: RepaintBoundary(
-            key: _repaintBoundaryKey,
+            key: repaintBoundaryKey,
             child: WidgetForms(),
           ),
         ),
