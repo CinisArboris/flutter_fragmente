@@ -25,8 +25,7 @@ class WidgetForms extends StatelessWidget {
           (index) => TextFormField(
             controller: _controllers[index],
             decoration: InputDecoration(
-              labelText: 'Test ${String.fromCharCode(65 + index)}',
-            ),
+                labelText: 'Test ${String.fromCharCode(65 + index)}'),
           ),
         )
           ..add(
