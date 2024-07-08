@@ -15,25 +15,15 @@ class CaptureButtonState extends State<CaptureButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          controller: _messageController,
-          decoration: const InputDecoration(
-            hintText: 'Escribe tu mensaje aquí...',
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.camera),
-          onPressed: () async {
-            await ScreenshotHelper.captureAndSave(
-              context,
-              widget.repaintBoundaryKey,
-              _messageController,
-            );
-          },
-        ),
-      ],
+    return IconButton(
+      icon: const Icon(Icons.camera),
+      onPressed: () async {
+        await ScreenshotHelper.captureAndSave(
+          context,
+          widget.repaintBoundaryKey,
+          _messageController,
+        );
+      },
     );
   }
 }
