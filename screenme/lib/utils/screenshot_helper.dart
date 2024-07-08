@@ -5,8 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:gallery_saver_plus/gallery_saver.dart';
-
-import 'package:screenme/utils/email_sender.dart';
+import 'package:screenme/utils/email_sender_static.dart';
 
 class ScreenshotHelper {
   static Future<void> captureAndSave(
@@ -35,7 +34,7 @@ class ScreenshotHelper {
       debugPrint('Captura guardada en la galería: $path');
 
       // Enviar la captura de pantalla por correo
-      final emailSender = EmailSender();
+      final emailSender = EmailSenderStatic();
       await emailSender.sendEmail(path, messageController.text);
 
       ScaffoldMessenger.of(context).showSnackBar(
