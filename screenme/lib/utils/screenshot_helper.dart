@@ -11,7 +11,6 @@ class ScreenshotHelper {
   static Future<void> captureAndSave(
     BuildContext context,
     GlobalKey repaintBoundaryKey,
-    TextEditingController messageController,
   ) async {
     try {
       RenderRepaintBoundary boundary = repaintBoundaryKey.currentContext!
@@ -34,8 +33,7 @@ class ScreenshotHelper {
       debugPrint('Captura guardada en la galería: $path');
 
       // Enviar la captura de pantalla por correo
-      final emailSender = EmailSenderStatic();
-      await emailSender.sendEmail(path, messageController.text);
+      await EmailSenderStatic.sendEmail(path);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Captura enviada por correo')),

@@ -11,8 +11,6 @@ class CaptureButton extends StatefulWidget {
 }
 
 class CaptureButtonState extends State<CaptureButton> {
-  final TextEditingController _messageController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return IconButton(
@@ -21,7 +19,6 @@ class CaptureButtonState extends State<CaptureButton> {
         await ScreenshotHelper.captureAndSave(
           context,
           widget.repaintBoundaryKey,
-          _messageController,
         );
       },
     );

@@ -1,20 +1,19 @@
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 
 class EmailSenderStatic {
-  final List<String> recipients = [
+  static final List<String> recipients = [
     'eyver.evm@gmail.com',
     'margaritacc7@outlook.com',
   ];
-  final String subject = 'Captura, Error/Ayuda App Mi Móvil';
-  final String body =
-      'Estimados colegas, por favor su colaboración con el siguiente incidente:\n\n';
+  static const String subject = 'Captura, Error/Ayuda App Mi Móvil';
+  static const String body =
+      'Estimados colegas, por favor su colaboración con el siguiente incidente:\n\n'
+      'Usuario: \n'
+      'Descripción: \n\n';
 
-  Future<void> sendEmail(
-    String attachmentPath,
-    String additionalMessage,
-  ) async {
+  static Future<void> sendEmail(String attachmentPath) async {
     final Email email = Email(
-      body: '$body$additionalMessage',
+      body: body,
       subject: subject,
       recipients: recipients,
       attachmentPaths: [attachmentPath],
