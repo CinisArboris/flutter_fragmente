@@ -21,7 +21,10 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: RepaintBoundary(
             key: repaintBoundaryKey,
-            child: WidgetForms(),
+            child: Container(
+              color: Colors.white,
+              child: WidgetForms(),
+            ),
           ),
         ),
       ),
