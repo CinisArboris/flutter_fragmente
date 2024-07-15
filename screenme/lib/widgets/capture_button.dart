@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:screenme/utils/screenshot_helper.dart';
 
 class CaptureButton extends StatefulWidget {
-  const CaptureButton({super.key, required this.repaintBoundaryKey});
+  const CaptureButton({
+    super.key,
+    required this.repaintBoundaryKey,
+  });
 
   final GlobalKey repaintBoundaryKey;
 
