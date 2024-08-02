@@ -1,7 +1,9 @@
+import 'package:firebase_mix/widgets/update_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import '../services/version_check_service.dart';
 import '../widgets/info_card.dart';
+import 'new_route.dart';
 
 class MyHomePage extends StatefulWidget {
   final FirebaseAnalytics analytics;
@@ -9,13 +11,15 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.analytics});
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePageState extends State<MyHomePage> {
   final VersionCheckService _versionCheckService = VersionCheckService();
   String versionMiMovil = '';
   String textoRandom = '';
+  String svrDetalleVersion = '';
+  bool isButtonEnabled = false;
 
   @override
   void initState() {
@@ -27,7 +31,9 @@ class _MyHomePageState extends State<MyHomePage> {
     await _versionCheckService.checkVersion();
     setState(() {
       versionMiMovil = _versionCheckService.versionMiMovil;
-      textoRandom = _versionCheckService.textoRandom;
+      textoRandom = _versionCheckService.svrTextoVersion;
+      svrDetalleVersion = _versionCheckService.svrDetalleVersion;
+      isButtonEnabled = !_versionCheckService.isUpdateAvailable;
     });
 
     if (_versionCheckService.isUpdateAvailable) {
@@ -38,23 +44,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void _showUpdateDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Nueva versión disponible'),
-        content: Text(
-            'Hay una nueva versión de la aplicación disponible. ¿Desea descargarla ahora?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _versionCheckService.redirectToDownload();
-            },
-            child: Text('Descargar'),
-          ),
-        ],
+      builder: (context) => UpdateAlertDialog(
+        onUpdate: () {
+          Navigator.of(context).pop();
+          _versionCheckService.redirectToDownload();
+        },
+        onCancel: () {
+          Navigator.of(context).pop();
+        },
+        versionDetail: svrDetalleVersion,
       ),
     );
   }
@@ -73,6 +71,18 @@ class _MyHomePageState extends State<MyHomePage> {
             InfoCard(title: 'Versión de mi Móvil', subtitle: versionMiMovil),
             SizedBox(height: 20),
             InfoCard(title: 'Texto Random', subtitle: textoRandom),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: isButtonEnabled
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => NewRoute()),
+                      );
+                    }
+                  : null,
+              child: Text('Ir a nueva ruta'),
+            ),
           ],
         ),
       ),

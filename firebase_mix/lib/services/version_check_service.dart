@@ -1,58 +1,40 @@
-import 'package:flutter/material.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'remote_config_service.dart';
 
 class VersionCheckService {
-  final RemoteConfigService _remoteConfigService = RemoteConfigService();
+  final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
   String versionMiMovil = '';
-  String textoRandom = '';
-  String latestVersion = '';
+  String svrTextoVersion = '';
+  String svrDetalleVersion = '';
+  String clienteLatestApkUrl = '';
   bool isUpdateAvailable = false;
-  String downloadUrl = 'https://example.com/download';
 
   Future<void> checkVersion() async {
-    await _remoteConfigService.initialize();
-    latestVersion = _remoteConfigService.getLatestVersion();
-    textoRandom = _remoteConfigService.getTextoRandom();
+    await _remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(seconds: 10),
+      minimumFetchInterval: const Duration(hours: 1),
+    ));
+    await _remoteConfig.fetchAndActivate();
+
+    svrTextoVersion = _remoteConfig.getString('svr_texto_version');
+    svrDetalleVersion = _remoteConfig.getString('svr_detalle_version');
+    clienteLatestApkUrl = _remoteConfig.getString('cliente_latest_apk_url');
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     versionMiMovil = packageInfo.version;
 
-    // Compara la versión actual con la versión más reciente
-    if (_compareVersion(versionMiMovil, latestVersion) < 0) {
+    if (versionMiMovil != svrTextoVersion) {
       isUpdateAvailable = true;
     }
   }
 
-  int _compareVersion(String currentVersion, String latestVersion) {
-    int currentVersionInt = _versionToInt(currentVersion);
-    int latestVersionInt = _versionToInt(latestVersion);
-
-    debugPrint('::: currentVersion  $currentVersion');
-    debugPrint('::: latestVersion  $latestVersion');
-    debugPrint('::: currentVersionInt  $currentVersionInt');
-    debugPrint('::: latestVersionInt  $latestVersionInt');
-
-    if (latestVersionInt > currentVersionInt) {
-      return -1; // Hay una actualización disponible
-    } else if (latestVersionInt < currentVersionInt) {
-      return 1; // La versión actual es más reciente
-    }
-    return 0; // Las versiones son iguales
-  }
-
-  int _versionToInt(String version) {
-    // Remover puntos y convertir a entero
-    return int.tryParse(version.replaceAll('.', '')) ?? 0;
-  }
-
   void redirectToDownload() async {
-    Uri url = Uri.parse(downloadUrl);
+    final Uri url = Uri.parse(clienteLatestApkUrl);
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
-      throw 'Could not launch $downloadUrl';
+      throw 'No se puede lanzar $clienteLatestApkUrl';
     }
   }
 }
