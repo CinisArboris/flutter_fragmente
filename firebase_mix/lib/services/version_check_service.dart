@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'remote_config_service.dart';
@@ -13,15 +14,37 @@ class VersionCheckService {
   Future<void> checkVersion() async {
     await _remoteConfigService.initialize();
     latestVersion = _remoteConfigService.getLatestVersion();
-    versionMiMovil = _remoteConfigService.getVersionMiMovil();
     textoRandom = _remoteConfigService.getTextoRandom();
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String currentVersion = packageInfo.version;
+    versionMiMovil = packageInfo.version;
 
-    if (currentVersion != latestVersion) {
+    // Compara la versión actual con la versión más reciente
+    if (_compareVersion(versionMiMovil, latestVersion) < 0) {
       isUpdateAvailable = true;
     }
+  }
+
+  int _compareVersion(String currentVersion, String latestVersion) {
+    int currentVersionInt = _versionToInt(currentVersion);
+    int latestVersionInt = _versionToInt(latestVersion);
+
+    debugPrint('::: currentVersion  $currentVersion');
+    debugPrint('::: latestVersion  $latestVersion');
+    debugPrint('::: currentVersionInt  $currentVersionInt');
+    debugPrint('::: latestVersionInt  $latestVersionInt');
+
+    if (latestVersionInt > currentVersionInt) {
+      return -1; // Hay una actualización disponible
+    } else if (latestVersionInt < currentVersionInt) {
+      return 1; // La versión actual es más reciente
+    }
+    return 0; // Las versiones son iguales
+  }
+
+  int _versionToInt(String version) {
+    // Remover puntos y convertir a entero
+    return int.tryParse(version.replaceAll('.', '')) ?? 0;
   }
 
   void redirectToDownload() async {

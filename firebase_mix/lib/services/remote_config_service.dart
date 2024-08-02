@@ -6,16 +6,12 @@ class RemoteConfigService {
   Future<void> initialize() async {
     await _remoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: const Duration(seconds: 10),
-      minimumFetchInterval: const Duration(hours: 1),
+      minimumFetchInterval: const Duration(seconds: 30),
     ));
     await _remoteConfig.fetchAndActivate();
   }
 
   String getLatestVersion() {
-    return _remoteConfig.getString('latest_version');
-  }
-
-  String getVersionMiMovil() {
     return _remoteConfig.getString('version_mi_movil');
   }
 
