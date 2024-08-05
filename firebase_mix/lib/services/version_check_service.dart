@@ -29,7 +29,7 @@ class VersionCheckService {
     }
   }
 
-  void redirectToDownload() async {
+  Future<void> redirectToDownload() async {
     final Uri url = Uri.parse(clienteLatestApkUrl);
     if (await canLaunchUrl(url)) {
       await launchUrl(url);

@@ -4,30 +4,36 @@ class UpdateAlertDialog extends StatelessWidget {
   final VoidCallback onUpdate;
   final VoidCallback onCancel;
   final String versionDetail;
+  final String mobileVersion;
 
   const UpdateAlertDialog({
     super.key,
     required this.onUpdate,
     required this.onCancel,
     required this.versionDetail,
+    required this.mobileVersion,
   });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.yellow[100],
+      backgroundColor: Colors.lightBlue[50],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
+        side: const BorderSide(color: Colors.lightBlue, width: 2),
       ),
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.system_update, color: Colors.red),
+          Icon(Icons.update, color: Colors.lightBlue, size: 30),
           SizedBox(width: 10),
-          Text(
-            'Nueva versión disponible',
-            style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Text(
+              '🔄 Nueva versión disponible',
+              style: TextStyle(
+                color: Colors.lightBlue,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
             ),
           ),
         ],
@@ -42,7 +48,16 @@ class UpdateAlertDialog extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Detalles:',
+            '📱 Versión del móvil:',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            mobileVersion,
+            style: const TextStyle(color: Colors.black),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            '📋 Detalles:',
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
           Text(
@@ -59,11 +74,14 @@ class UpdateAlertDialog extends StatelessWidget {
             style: TextStyle(color: Colors.grey),
           ),
         ),
-        TextButton(
+        ElevatedButton(
           onPressed: onUpdate,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.lightBlue, // Color de fondo celeste
+          ),
           child: const Text(
             'Descargar',
-            style: TextStyle(color: Colors.red),
+            style: TextStyle(color: Colors.white),
           ),
         ),
       ],

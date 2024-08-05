@@ -17,9 +17,8 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
   final VersionCheckService _versionCheckService = VersionCheckService();
   String versionMiMovil = '';
-  String textoRandom = '';
   String svrDetalleVersion = '';
-  bool isButtonEnabled = false;
+  bool isUpdateAvailable = false;
 
   @override
   void initState() {
@@ -27,16 +26,15 @@ class MyHomePageState extends State<MyHomePage> {
     _checkForUpdates();
   }
 
-  void _checkForUpdates() async {
+  Future<void> _checkForUpdates() async {
     await _versionCheckService.checkVersion();
     setState(() {
       versionMiMovil = _versionCheckService.versionMiMovil;
-      textoRandom = _versionCheckService.svrTextoVersion;
       svrDetalleVersion = _versionCheckService.svrDetalleVersion;
-      isButtonEnabled = !_versionCheckService.isUpdateAvailable;
+      isUpdateAvailable = _versionCheckService.isUpdateAvailable;
     });
 
-    if (_versionCheckService.isUpdateAvailable) {
+    if (isUpdateAvailable) {
       _showUpdateDialog();
     }
   }
@@ -45,43 +43,62 @@ class MyHomePageState extends State<MyHomePage> {
     showDialog(
       context: context,
       builder: (context) => UpdateAlertDialog(
-        onUpdate: () {
-          Navigator.of(context).pop();
-          _versionCheckService.redirectToDownload();
-        },
-        onCancel: () {
-          Navigator.of(context).pop();
-        },
+        onUpdate: _onUpdate,
+        onCancel: _onCancel,
         versionDetail: svrDetalleVersion,
+        mobileVersion: versionMiMovil,
       ),
     );
+  }
+
+  void _onUpdate() async {
+    try {
+      Navigator.of(context).pop();
+      await _versionCheckService.redirectToDownload();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+
+  void _onCancel() {
+    Navigator.of(context).pop();
+  }
+
+  void _recheckVersionAndNavigate() async {
+    await _versionCheckService.checkVersion();
+    if (_versionCheckService.isUpdateAvailable) {
+      _showUpdateDialog();
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => NewRoute()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Remote Config Example'),
+        title: const Text('Remote Config Example'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            InfoCard(title: 'Versión de mi Móvil', subtitle: versionMiMovil),
-            SizedBox(height: 20),
-            InfoCard(title: 'Texto Random', subtitle: textoRandom),
-            SizedBox(height: 20),
+            InfoCard(
+              title: 'Versión actual del móvil',
+              subtitle: versionMiMovil,
+            ),
+            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: isButtonEnabled
-                  ? () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => NewRoute()),
-                      );
-                    }
-                  : null,
-              child: Text('Ir a nueva ruta'),
+              onPressed: isUpdateAvailable
+                  ? _versionCheckService.redirectToDownload
+                  : _recheckVersionAndNavigate,
+              child: Text(isUpdateAvailable ? 'Actualizar' : 'Ir a nueva ruta'),
             ),
           ],
         ),
