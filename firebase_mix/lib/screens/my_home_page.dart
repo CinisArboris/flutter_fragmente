@@ -61,7 +61,7 @@ class MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Remote Config Example'),
+        title: const Text('Remote Config Example'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -69,19 +69,21 @@ class MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             InfoCard(title: 'Versión de mi Móvil', subtitle: versionMiMovil),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             InfoCard(title: 'Texto Random', subtitle: textoRandom),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: isButtonEnabled
                   ? () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => NewRoute()),
+                        MaterialPageRoute(
+                          builder: (context) => const NewRoute(),
+                        ),
                       );
                     }
                   : null,
-              child: Text('Ir a nueva ruta'),
+              child: const Text('Ir a nueva ruta'),
             ),
           ],
         ),
