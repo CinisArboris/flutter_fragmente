@@ -1,7 +1,9 @@
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:install_plugin/install_plugin.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
 
 class VersionCheckService {
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
@@ -52,17 +54,22 @@ class VersionCheckService {
 
   Future<void> redirectToDownload() async {
     try {
-      final Uri url = Uri.parse(svrUrlDescargarApk);
-      debugPrint('Redirigiendo a la URL: $svrUrlDescargarApk');
+      var appDocDir = await getTemporaryDirectory();
+      String savePath = "${appDocDir.path}/app_update.apk";
 
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-        debugPrint('Lanzamiento de la URL exitoso.');
-      } else {
-        throw 'No se puede lanzar $svrUrlDescargarApk';
-      }
+      debugPrint(
+          'Iniciando la descarga de la APK desde $svrUrlDescargarApk...');
+      await Dio().download(svrUrlDescargarApk, savePath,
+          onReceiveProgress: (count, total) {
+        debugPrint(
+            'Progreso de descarga: ${(count / total * 100).toStringAsFixed(0)}%');
+      });
+
+      debugPrint('Descarga completa. Iniciando instalación...');
+      await InstallPlugin.install(savePath);
+      debugPrint('Instalación iniciada con éxito.');
     } catch (e) {
-      debugPrint('Error durante la redirección a la URL: $e');
+      debugPrint('Error durante la descarga o instalación de la APK: $e');
       rethrow;
     }
   }
