@@ -17,8 +17,11 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
   final VersionCheckService _versionCheckService = VersionCheckService();
   String versionMiMovil = '';
-  String svrDetalleVersion = '';
+  String svrDetalleVersion = ''; // Almacena la descripción de la APK
+  String svrUltimaVersion = ''; // Almacena la versión en el servidor
+  String svrUrlDescargarApk = ''; // Almacena la URL de descarga de la APK
   bool isUpdateAvailable = false;
+  bool isButtonEnabled = true;
 
   @override
   void initState() {
@@ -31,7 +34,10 @@ class MyHomePageState extends State<MyHomePage> {
     setState(() {
       versionMiMovil = _versionCheckService.versionMiMovil;
       svrDetalleVersion = _versionCheckService.svrDetalleVersion;
+      svrUltimaVersion = _versionCheckService.svrUltimaVersion;
+      svrUrlDescargarApk = _versionCheckService.svrUrlDescargarApk;
       isUpdateAvailable = _versionCheckService.isUpdateAvailable;
+      isButtonEnabled = !isUpdateAvailable;
     });
 
     if (isUpdateAvailable) {
@@ -73,7 +79,7 @@ class MyHomePageState extends State<MyHomePage> {
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => NewRoute()),
+        MaterialPageRoute(builder: (context) => const NewRoute()),
       );
     }
   }
@@ -83,37 +89,31 @@ class MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Remote Config Example'),
-        title: const Text('Remote Config Example'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            InfoCard(title: 'Versión de mi Móvil', subtitle: versionMiMovil),
-            const SizedBox(height: 20),
-            InfoCard(title: 'Texto Random', subtitle: textoRandom),
+            const InfoCard(
+              title: 'Detalle',
+              subtitle: 'Modulos disponibles : 5',
+            ),
             const SizedBox(height: 20),
             InfoCard(
-              title: 'Versión actual del móvil',
-              subtitle: versionMiMovil,
+                title: 'Versión instalada en el dispositivo',
+                subtitle: versionMiMovil),
+            const SizedBox(height: 20),
+            InfoCard(
+                title: 'Descripción de la APK', subtitle: svrDetalleVersion),
+            const SizedBox(height: 20),
+            InfoCard(
+              title: 'Versión disponible en el servidor',
+              subtitle: svrUltimaVersion,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: isButtonEnabled
-                  ? () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NewRoute(),
-                        ),
-                      );
-                    }
-                  : null,
-              child: const Text('Ir a nueva ruta'),
-              onPressed: isUpdateAvailable
-                  ? _versionCheckService.redirectToDownload
-                  : _recheckVersionAndNavigate,
+              onPressed: isButtonEnabled ? _recheckVersionAndNavigate : null,
               child: Text(isUpdateAvailable ? 'Actualizar' : 'Ir a nueva ruta'),
             ),
           ],
