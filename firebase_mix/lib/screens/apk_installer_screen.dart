@@ -1,9 +1,10 @@
-import 'package:firebase_mix/services/servicio_apk_installer.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_mix/services/servicio_gestor_de_actualizacion.dart';
 import 'package:firebase_mix/widgets/dio_download.dart';
 import 'package:firebase_mix/widgets/dio_error.dart';
 import 'package:firebase_mix/widgets/dio_success.dart';
-import 'package:flutter/material.dart';
 
+/// Esta pantalla gestiona la actualización de la aplicación mediante la descarga e instalación de un nuevo APK.
 class ApkInstallScreen extends StatefulWidget {
   final String apkUrl;
 
@@ -14,38 +15,40 @@ class ApkInstallScreen extends StatefulWidget {
 }
 
 class ApkInstallScreenState extends State<ApkInstallScreen> {
-  ApkInstaller? installer;
+  GestorDeActualizaciones? installer;
   final GlobalKey<DioDownloadingWidgetState> _downloadingWidgetKey =
       GlobalKey<DioDownloadingWidgetState>();
 
   @override
   void initState() {
     super.initState();
-    installer = ApkInstaller(widget.apkUrl);
+    installer = GestorDeActualizaciones(widget.apkUrl);
 
-    // Empezar la descarga e instalar el APK con el callback onProgress
-    installer?.downloadAndInstallApk(onProgress: (progress) {
-      _downloadingWidgetKey.currentState
-          ?.updateProgress(progress.toStringAsFixed(2));
-    });
+    /// **⚠️ Observación Importante:**
+    /// Este flujo está diseñado para actualizar el APK de la aplicación.
+    /// Se asegura de que la última versión del APK se descargue e instale en el dispositivo.
+    installer?.descargarEInstalarActualizacion(
+      onBytesDownloaded: (mbDownloaded) {
+        _downloadingWidgetKey.currentState?.updateBytesDownloaded(mbDownloaded);
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Instalación de APK'),
+        title: const Text('Actualización de la Aplicación'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: FutureBuilder(
-            future: installer?.downloadAndInstallApk(),
+            future: installer?.descargarEInstalarActualizacion(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return DioDownloadingWidget(
                   key: _downloadingWidgetKey,
-                  initialProgress: '0.00',
                 );
               } else if (snapshot.hasError) {
                 return DioErrorWidget(error: snapshot.error);

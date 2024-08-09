@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
 
 class DioDownloadingWidget extends StatefulWidget {
-  final String initialProgress;
-
-  const DioDownloadingWidget({super.key, required this.initialProgress});
+  const DioDownloadingWidget({Key? key}) : super(key: key);
 
   @override
   DioDownloadingWidgetState createState() => DioDownloadingWidgetState();
 }
 
 class DioDownloadingWidgetState extends State<DioDownloadingWidget> {
-  late String progress;
+  double _mbDownloaded = 0.0;
 
-  @override
-  void initState() {
-    super.initState();
-    progress = widget.initialProgress;
-  }
-
-  void updateProgress(String newProgress) {
+  void updateBytesDownloaded(double mbDownloaded) {
     setState(() {
-      progress = newProgress;
+      _mbDownloaded = mbDownloaded;
     });
   }
 
@@ -42,7 +34,7 @@ class DioDownloadingWidgetState extends State<DioDownloadingWidget> {
                 const CircularProgressIndicator(),
                 const SizedBox(height: 20),
                 Text(
-                  'Descargando... $progress%',
+                  'Descargando... ${_mbDownloaded.toStringAsFixed(2)} MB',
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 16),
                 ),
