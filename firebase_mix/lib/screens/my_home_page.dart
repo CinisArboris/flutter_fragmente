@@ -1,3 +1,4 @@
+import 'package:firebase_mix/screens/apk_installer_screen.dart';
 import 'package:firebase_mix/widgets/update_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -57,18 +58,13 @@ class MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _onUpdate() async {
-    try {
-      Navigator.of(context).pop();
-      debugPrint('Iniciando la descarga de la nueva versión...');
-      await _versionCheckService.redirectToDownload();
-      debugPrint('Descarga iniciada con éxito.');
-    } catch (e) {
-      debugPrint('Error durante la actualización: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    }
+  void _onUpdate() {
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ApkInstallScreen(apkUrl: svrUrlDescargarApk)),
+    );
   }
 
   void _onCancel() {
