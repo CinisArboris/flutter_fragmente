@@ -60,8 +60,11 @@ class MyHomePageState extends State<MyHomePage> {
   void _onUpdate() async {
     try {
       Navigator.of(context).pop();
+      debugPrint('Iniciando la descarga de la nueva versión...');
       await _versionCheckService.redirectToDownload();
+      debugPrint('Descarga iniciada con éxito.');
     } catch (e) {
+      debugPrint('Error durante la actualización: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
       );
