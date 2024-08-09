@@ -1,9 +1,28 @@
 import 'package:flutter/material.dart';
 
-class DioDownloadingWidget extends StatelessWidget {
-  final String progress;
+class DioDownloadingWidget extends StatefulWidget {
+  final String initialProgress;
 
-  const DioDownloadingWidget({super.key, required this.progress});
+  const DioDownloadingWidget({super.key, required this.initialProgress});
+
+  @override
+  DioDownloadingWidgetState createState() => DioDownloadingWidgetState();
+}
+
+class DioDownloadingWidgetState extends State<DioDownloadingWidget> {
+  late String progress;
+
+  @override
+  void initState() {
+    super.initState();
+    progress = widget.initialProgress;
+  }
+
+  void updateProgress(String newProgress) {
+    setState(() {
+      progress = newProgress;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

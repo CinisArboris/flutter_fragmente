@@ -10,16 +10,24 @@ class ApkInstallScreen extends StatefulWidget {
   const ApkInstallScreen({super.key, required this.apkUrl});
 
   @override
-  _ApkInstallScreenState createState() => _ApkInstallScreenState();
+  ApkInstallScreenState createState() => ApkInstallScreenState();
 }
 
-class _ApkInstallScreenState extends State<ApkInstallScreen> {
+class ApkInstallScreenState extends State<ApkInstallScreen> {
   ApkInstaller? installer;
+  final GlobalKey<DioDownloadingWidgetState> _downloadingWidgetKey =
+      GlobalKey<DioDownloadingWidgetState>();
 
   @override
   void initState() {
     super.initState();
     installer = ApkInstaller(widget.apkUrl);
+
+    // Empezar la descarga e instalar el APK con el callback onProgress
+    installer?.downloadAndInstallApk(onProgress: (progress) {
+      _downloadingWidgetKey.currentState
+          ?.updateProgress(progress.toStringAsFixed(2));
+    });
   }
 
   @override
@@ -35,17 +43,9 @@ class _ApkInstallScreenState extends State<ApkInstallScreen> {
             future: installer?.downloadAndInstallApk(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return StreamBuilder<double>(
-                  stream: Stream.periodic(const Duration(milliseconds: 500),
-                      (count) {
-                    return double.tryParse(installer?.progressValue ?? '0.0') ??
-                        0.0;
-                  }),
-                  builder: (context, snapshot) {
-                    return DioDownloadingWidget(
-                      progress: snapshot.data?.toStringAsFixed(2) ?? '0.00',
-                    );
-                  },
+                return DioDownloadingWidget(
+                  key: _downloadingWidgetKey,
+                  initialProgress: '0.00',
                 );
               } else if (snapshot.hasError) {
                 return DioErrorWidget(error: snapshot.error);
