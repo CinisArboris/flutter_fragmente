@@ -41,6 +41,9 @@ dependencies:
   firebase_analytics: ^11.2.1
   package_info_plus: ^8.0.1
   url_launcher: ^6.3.0
+  install_plugin: ^2.1.0
+  path_provider: ^2.1.4
+  dio: ^5.5.0+1
 
 dev_dependencies:
   flutter_test:
