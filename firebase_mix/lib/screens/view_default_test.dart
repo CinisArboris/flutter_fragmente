@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class NewRoute extends StatelessWidget {
-  const NewRoute({super.key});
+class ViewDefaultTest extends StatelessWidget {
+  const ViewDefaultTest({super.key});
 
   @override
   Widget build(BuildContext context) {

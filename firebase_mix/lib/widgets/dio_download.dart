@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DioDownloadingWidget extends StatefulWidget {
-  const DioDownloadingWidget({Key? key}) : super(key: key);
+  const DioDownloadingWidget({super.key});
 
   @override
   DioDownloadingWidgetState createState() => DioDownloadingWidgetState();

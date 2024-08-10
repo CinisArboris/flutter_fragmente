@@ -1,10 +1,10 @@
-import 'package:firebase_mix/screens/apk_installer_screen.dart';
+import 'package:firebase_mix/screens/view_update_apk.dart';
+import 'package:firebase_mix/services/version_check_service.dart';
+import 'package:firebase_mix/widgets/info_card.dart';
 import 'package:firebase_mix/widgets/update_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import '../services/version_check_service.dart';
-import '../widgets/info_card.dart';
-import 'new_route.dart';
+import 'view_default_test.dart';
 
 class MyHomePage extends StatefulWidget {
   final FirebaseAnalytics analytics;
@@ -32,6 +32,11 @@ class MyHomePageState extends State<MyHomePage> {
 
   Future<void> _checkForUpdates() async {
     await _versionCheckService.checkVersion();
+    _updateVersionInfo();
+    _handleUpdateDialog();
+  }
+
+  void _updateVersionInfo() {
     setState(() {
       versionMiMovil = _versionCheckService.versionMiMovil;
       svrDetalleVersion = _versionCheckService.svrDetalleVersion;
@@ -40,7 +45,9 @@ class MyHomePageState extends State<MyHomePage> {
       isUpdateAvailable = _versionCheckService.isUpdateAvailable;
       isButtonEnabled = !isUpdateAvailable;
     });
+  }
 
+  void _handleUpdateDialog() {
     if (isUpdateAvailable) {
       _showUpdateDialog();
     }
@@ -59,16 +66,20 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _onUpdate() {
-    Navigator.of(context).pop();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => ApkInstallScreen(apkUrl: svrUrlDescargarApk)),
-    );
+    _navigateToUpdatePage();
   }
 
   void _onCancel() {
     Navigator.of(context).pop();
+  }
+
+  void _navigateToUpdatePage() {
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ViewUpdateApk(apkUrl: svrUrlDescargarApk)),
+    );
   }
 
   void _recheckVersionAndNavigate() async {
@@ -76,11 +87,15 @@ class MyHomePageState extends State<MyHomePage> {
     if (_versionCheckService.isUpdateAvailable) {
       _showUpdateDialog();
     } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const NewRoute()),
-      );
+      _navigateToDefaultTestPage();
     }
+  }
+
+  void _navigateToDefaultTestPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ViewDefaultTest()),
+    );
   }
 
   @override
@@ -89,35 +104,46 @@ class MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Remote Config Example'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const InfoCard(
-              title: 'Detalle',
-              subtitle: 'Modulos disponibles : 5',
-            ),
-            const SizedBox(height: 20),
-            InfoCard(
-                title: 'Versión instalada en el dispositivo',
-                subtitle: versionMiMovil),
-            const SizedBox(height: 20),
-            InfoCard(
-                title: 'Descripción de la APK', subtitle: svrDetalleVersion),
-            const SizedBox(height: 20),
-            InfoCard(
-              title: 'Versión disponible en el servidor',
-              subtitle: svrUltimaVersion,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: isButtonEnabled ? _recheckVersionAndNavigate : null,
-              child: Text(isUpdateAvailable ? 'Actualizar' : 'Ir a nueva ruta'),
-            ),
-          ],
-        ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const InfoCard(
+            title: 'Detalle',
+            subtitle: 'Modulos disponibles : 5',
+          ),
+          const SizedBox(height: 20),
+          _buildVersionInfoCard(
+              'Versión instalada en el dispositivo', versionMiMovil),
+          const SizedBox(height: 20),
+          _buildVersionInfoCard('Descripción de la APK', svrDetalleVersion),
+          const SizedBox(height: 20),
+          _buildVersionInfoCard(
+              'Versión disponible en el servidor', svrUltimaVersion),
+          const SizedBox(height: 20),
+          _buildActionButton(),
+        ],
       ),
+    );
+  }
+
+  Widget _buildVersionInfoCard(String title, String subtitle) {
+    return InfoCard(
+      title: title,
+      subtitle: subtitle,
+    );
+  }
+
+  Widget _buildActionButton() {
+    return ElevatedButton(
+      onPressed: isButtonEnabled ? _recheckVersionAndNavigate : null,
+      child: Text(isUpdateAvailable ? 'Actualizar' : 'Ir a nueva ruta'),
     );
   }
 }

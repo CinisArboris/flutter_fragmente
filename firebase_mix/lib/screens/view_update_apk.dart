@@ -4,17 +4,16 @@ import 'package:firebase_mix/widgets/dio_download.dart';
 import 'package:firebase_mix/widgets/dio_error.dart';
 import 'package:firebase_mix/widgets/dio_success.dart';
 
-/// Esta pantalla gestiona la actualización de la aplicación mediante la descarga e instalación de un nuevo APK.
-class ApkInstallScreen extends StatefulWidget {
+class ViewUpdateApk extends StatefulWidget {
   final String apkUrl;
 
-  const ApkInstallScreen({super.key, required this.apkUrl});
+  const ViewUpdateApk({super.key, required this.apkUrl});
 
   @override
-  ApkInstallScreenState createState() => ApkInstallScreenState();
+  ViewUpdateApkState createState() => ViewUpdateApkState();
 }
 
-class ApkInstallScreenState extends State<ApkInstallScreen> {
+class ViewUpdateApkState extends State<ViewUpdateApk> {
   GestorDeActualizaciones? installer;
   final GlobalKey<DioDownloadingWidgetState> _downloadingWidgetKey =
       GlobalKey<DioDownloadingWidgetState>();
@@ -24,9 +23,6 @@ class ApkInstallScreenState extends State<ApkInstallScreen> {
     super.initState();
     installer = GestorDeActualizaciones(widget.apkUrl);
 
-    /// **⚠️ Observación Importante:**
-    /// Este flujo está diseñado para actualizar el APK de la aplicación.
-    /// Se asegura de que la última versión del APK se descargue e instale en el dispositivo.
     installer?.descargarEInstalarActualizacion(
       onBytesDownloaded: (mbDownloaded) {
         _downloadingWidgetKey.currentState?.updateBytesDownloaded(mbDownloaded);
