@@ -67,7 +67,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _onUpdate() {
-    _showUpdateDialog();
+    _navigateToUpdatePage();
   }
 
   void _onCancel() {
