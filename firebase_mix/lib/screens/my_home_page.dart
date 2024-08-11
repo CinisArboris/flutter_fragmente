@@ -20,10 +20,10 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   final VersionCheckService _versionCheckService = VersionCheckService();
-  String versionMiMovil = '';
-  String svrDetalleVersion = '';
-  String svrUltimaVersion = '';
-  String svrUrlDescargarApk = '';
+  String localVersion = '';
+  String remoteDetail = '';
+  String remoteVersion = '';
+  String remoteApkUrl = '';
   bool isUpdateAvailable = false;
 
   @override
@@ -40,10 +40,10 @@ class MyHomePageState extends State<MyHomePage> {
 
   void _updateVersionInfo() {
     setState(() {
-      versionMiMovil = _versionCheckService.versionMiMovil;
-      svrDetalleVersion = _versionCheckService.svrDetalleVersion;
-      svrUltimaVersion = _versionCheckService.svrUltimaVersion;
-      svrUrlDescargarApk = _versionCheckService.svrUrlDescargarApk;
+      localVersion = _versionCheckService.localVersion;
+      remoteDetail = _versionCheckService.remoteDetail;
+      remoteVersion = _versionCheckService.remoteVersion;
+      remoteApkUrl = _versionCheckService.remoteApkUrl;
       isUpdateAvailable = _versionCheckService.isUpdateAvailable;
     });
   }
@@ -60,8 +60,8 @@ class MyHomePageState extends State<MyHomePage> {
       builder: (context) => UpdateAlertDialog(
         onUpdate: _onUpdate,
         onCancel: _onCancel,
-        versionDetail: svrDetalleVersion,
-        mobileVersion: svrUltimaVersion,
+        versionDetail: remoteDetail,
+        mobileVersion: remoteVersion,
       ),
     );
   }
@@ -71,7 +71,7 @@ class MyHomePageState extends State<MyHomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ViewUpdateApk(apkUrl: svrUrlDescargarApk),
+        builder: (context) => ViewUpdateApk(apkUrl: remoteApkUrl),
       ),
     );
   }
@@ -118,12 +118,12 @@ class MyHomePageState extends State<MyHomePage> {
           ),
           const SizedBox(height: 20),
           _buildVersionInfoCard(
-              'Versión instalada en el dispositivo', versionMiMovil),
+              'Versión instalada en el dispositivo', localVersion),
           const SizedBox(height: 20),
-          _buildVersionInfoCard('Descripción de la APK', svrDetalleVersion),
+          _buildVersionInfoCard('Descripción de la APK', remoteDetail),
           const SizedBox(height: 20),
           _buildVersionInfoCard(
-              'Versión disponible en el servidor', svrUltimaVersion),
+              'Versión disponible en el servidor', remoteVersion),
           const SizedBox(height: 20),
           _buildActionButton(),
         ],

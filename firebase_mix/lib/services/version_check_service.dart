@@ -7,10 +7,10 @@ import 'package:dio/dio.dart';
 
 class VersionCheckService {
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
-  String versionMiMovil = '';
-  String svrUltimaVersion = '';
-  String svrDetalleVersion = '';
-  String svrUrlDescargarApk = '';
+  String localVersion = ''; // Versión instalada en el dispositivo
+  String remoteVersion = ''; // Versión obtenida desde Firebase
+  String remoteDetail = ''; // Detalle de la versión desde Firebase
+  String remoteApkUrl = ''; // URL de descarga de la APK desde Firebase
   bool isUpdateAvailable = false;
 
   Future<void> checkVersion() async {
@@ -26,21 +26,33 @@ class VersionCheckService {
       await _remoteConfig.fetchAndActivate();
       debugPrint('Configuraciones activadas.');
 
-      svrUltimaVersion = _remoteConfig.getString('svr_ultima_version');
-      svrDetalleVersion = _remoteConfig.getString('svr_detalle_version');
-      svrUrlDescargarApk = _remoteConfig.getString('svr_url_descargar_apk');
+      // Obteniendo datos desde Firebase Remote Config
+      remoteVersion = _remoteConfig.getString('svr_ultima_version');
+      remoteDetail = _remoteConfig.getString('svr_detalle_version');
+      remoteApkUrl = _remoteConfig.getString('svr_url_descargar_apk');
 
-      debugPrint('Versión en servidor: $svrUltimaVersion');
-      debugPrint('Detalle de la versión: $svrDetalleVersion');
-      debugPrint('URL de descarga de la APK: $svrUrlDescargarApk');
+      // Verificar si los datos obtenidos desde Firebase son válidos
+      if (remoteVersion.isEmpty ||
+          remoteDetail.isEmpty ||
+          remoteApkUrl.isEmpty) {
+        debugPrint(
+            'Datos obtenidos desde Firebase son inválidos. Abandonando la comparación.');
+        return;
+      }
 
+      debugPrint('Versión en servidor (Firebase): $remoteVersion');
+      debugPrint('Detalle de la versión (Firebase): $remoteDetail');
+      debugPrint('URL de descarga de la APK (Firebase): $remoteApkUrl');
+
+      // Obteniendo la versión instalada en el dispositivo
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      versionMiMovil = packageInfo.version;
+      localVersion = packageInfo.version;
 
-      debugPrint('Versión del móvil: $versionMiMovil');
+      debugPrint('Versión del móvil (Local): $localVersion');
       debugPrint('Comparando versiones...');
 
-      if (versionMiMovil != svrUltimaVersion) {
+      // Comparando la versión local con la versión remota
+      if (localVersion != remoteVersion) {
         isUpdateAvailable = true;
         debugPrint('Se requiere actualización.');
       } else {
@@ -53,13 +65,18 @@ class VersionCheckService {
   }
 
   Future<void> redirectToDownload() async {
+    if (remoteApkUrl.isEmpty) {
+      debugPrint(
+          'URL de descarga de la APK es inválida. No se puede iniciar la descarga.');
+      return;
+    }
+
     try {
       var appDocDir = await getTemporaryDirectory();
       String savePath = "${appDocDir.path}/app_update.apk";
 
-      debugPrint(
-          'Iniciando la descarga de la APK desde $svrUrlDescargarApk...');
-      await Dio().download(svrUrlDescargarApk, savePath,
+      debugPrint('Iniciando la descarga de la APK desde $remoteApkUrl...');
+      await Dio().download(remoteApkUrl, savePath,
           onReceiveProgress: (count, total) {
         debugPrint(
             'Progreso de descarga: ${(count / total * 100).toStringAsFixed(0)}%');
