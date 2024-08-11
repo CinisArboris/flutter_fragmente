@@ -1,5 +1,5 @@
 import 'package:firebase_mix/screens/view_update_apk.dart';
-import 'package:firebase_mix/services/version_check_service.dart';
+import 'package:firebase_mix/services/service_check_version.dart';
 import 'package:firebase_mix/widgets/w_info_card.dart';
 import 'package:firebase_mix/widgets/w_apk_update_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +19,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
-  final VersionCheckService _versionCheckService = VersionCheckService();
+  final ServiceCheckVersion _versionCheckService = ServiceCheckVersion();
   String localVersion = '';
   String remoteDetail = '';
   String remoteVersion = '';
