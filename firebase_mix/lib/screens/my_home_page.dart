@@ -58,7 +58,7 @@ class MyHomePageState extends State<MyHomePage> {
     showDialog(
       context: context,
       builder: (context) => UpdateAlertDialog(
-        onUpdate: _navigateToUpdatePage,
+        onUpdate: _onUpdate,
         onCancel: _onCancel,
         versionDetail: svrDetalleVersion,
         mobileVersion: svrUltimaVersion,
@@ -67,20 +67,17 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _onUpdate() {
-    _navigateToUpdatePage();
-  }
-
-  void _onCancel() {
-    Navigator.of(context).pop();
-  }
-
-  void _navigateToUpdatePage() {
     Navigator.of(context).pop();
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => ViewUpdateApk(apkUrl: svrUrlDescargarApk)),
+        builder: (context) => ViewUpdateApk(apkUrl: svrUrlDescargarApk),
+      ),
     );
+  }
+
+  void _onCancel() {
+    Navigator.of(context).pop();
   }
 
   void _recheckVersionAndNavigate() async {
@@ -157,7 +154,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   Widget _buildUpdateButton() {
     return ElevatedButton(
-      onPressed: _onUpdate,
+      onPressed: _showUpdateDialog,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.orange,
       ),

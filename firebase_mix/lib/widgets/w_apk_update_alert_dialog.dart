@@ -21,8 +21,8 @@ class UpdateAlertDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      title: Row(
-        children: const [
+      title: const Row(
+        children: [
           Icon(Icons.system_update, color: Colors.white),
           SizedBox(width: 10),
           Text(
@@ -40,11 +40,11 @@ class UpdateAlertDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10), // Separación entre título y descripción
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.new_releases, color: Colors.white),
-              const SizedBox(width: 5),
-              const Text(
+              Icon(Icons.new_releases, color: Colors.white),
+              SizedBox(width: 5),
+              Text(
                 'Nueva versión:',
                 style: TextStyle(color: Colors.white),
               ),
@@ -55,11 +55,11 @@ class UpdateAlertDialog extends StatelessWidget {
             style: const TextStyle(color: Colors.white),
           ),
           const SizedBox(height: 10),
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.info_outline, color: Colors.white),
-              const SizedBox(width: 5),
-              const Text(
+              Icon(Icons.info_outline, color: Colors.white),
+              SizedBox(width: 5),
+              Text(
                 'Detalles de la versión:',
                 style: TextStyle(color: Colors.white),
               ),
@@ -82,11 +82,11 @@ class UpdateAlertDialog extends StatelessWidget {
         ElevatedButton(
           onPressed: onUpdate,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white, // Botón de actualización blanco
+            backgroundColor: Colors.white,
           ),
           child: const Text(
             'Actualizar',
-            style: TextStyle(color: Colors.red), // Texto en rojo
+            style: TextStyle(color: Colors.red),
           ),
         ),
       ],

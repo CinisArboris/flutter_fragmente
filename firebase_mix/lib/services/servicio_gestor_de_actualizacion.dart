@@ -38,7 +38,7 @@ class GestorDeActualizaciones {
       debugPrint('Instalación iniciada con éxito.');
     } catch (e) {
       debugPrint('Error durante la descarga o instalación de la APK: $e');
-      throw e;
+      rethrow;
     }
   }
 
