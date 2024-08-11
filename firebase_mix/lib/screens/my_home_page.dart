@@ -1,7 +1,7 @@
 import 'package:firebase_mix/screens/view_update_apk.dart';
 import 'package:firebase_mix/services/version_check_service.dart';
-import 'package:firebase_mix/widgets/info_card.dart';
-import 'package:firebase_mix/widgets/update_alert_dialog.dart';
+import 'package:firebase_mix/widgets/w_info_card.dart';
+import 'package:firebase_mix/widgets/w_apk_update_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'view_default_test.dart';
@@ -9,7 +9,10 @@ import 'view_default_test.dart';
 class MyHomePage extends StatefulWidget {
   final FirebaseAnalytics analytics;
 
-  const MyHomePage({super.key, required this.analytics});
+  const MyHomePage({
+    super.key,
+    required this.analytics,
+  });
 
   @override
   MyHomePageState createState() => MyHomePageState();
@@ -18,11 +21,10 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
   final VersionCheckService _versionCheckService = VersionCheckService();
   String versionMiMovil = '';
-  String svrDetalleVersion = ''; // Almacena la descripción de la APK
-  String svrUltimaVersion = ''; // Almacena la versión en el servidor
-  String svrUrlDescargarApk = ''; // Almacena la URL de descarga de la APK
+  String svrDetalleVersion = '';
+  String svrUltimaVersion = '';
+  String svrUrlDescargarApk = '';
   bool isUpdateAvailable = false;
-  bool isButtonEnabled = true;
 
   @override
   void initState() {
@@ -43,7 +45,6 @@ class MyHomePageState extends State<MyHomePage> {
       svrUltimaVersion = _versionCheckService.svrUltimaVersion;
       svrUrlDescargarApk = _versionCheckService.svrUrlDescargarApk;
       isUpdateAvailable = _versionCheckService.isUpdateAvailable;
-      isButtonEnabled = !isUpdateAvailable;
     });
   }
 
@@ -57,16 +58,16 @@ class MyHomePageState extends State<MyHomePage> {
     showDialog(
       context: context,
       builder: (context) => UpdateAlertDialog(
-        onUpdate: _onUpdate,
+        onUpdate: _navigateToUpdatePage,
         onCancel: _onCancel,
         versionDetail: svrDetalleVersion,
-        mobileVersion: versionMiMovil,
+        mobileVersion: svrUltimaVersion,
       ),
     );
   }
 
   void _onUpdate() {
-    _navigateToUpdatePage();
+    _showUpdateDialog();
   }
 
   void _onCancel() {
@@ -141,9 +142,42 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildActionButton() {
+    return Column(
+      children: [
+        if (isUpdateAvailable) ...[
+          _buildUpdateButton(),
+          const SizedBox(height: 10),
+        ] else ...[
+          _buildNavigateButton(),
+          const SizedBox(height: 10),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildUpdateButton() {
     return ElevatedButton(
-      onPressed: isButtonEnabled ? _recheckVersionAndNavigate : null,
-      child: Text(isUpdateAvailable ? 'Actualizar' : 'Ir a nueva ruta'),
+      onPressed: _onUpdate,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.orange,
+      ),
+      child: const Text(
+        'Actualizar',
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildNavigateButton() {
+    return ElevatedButton(
+      onPressed: _recheckVersionAndNavigate,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue,
+      ),
+      child: const Text(
+        'Ir a nueva ruta',
+        style: TextStyle(color: Colors.white),
+      ),
     );
   }
 }
