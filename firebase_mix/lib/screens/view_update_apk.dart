@@ -19,6 +19,7 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
       GlobalKey<DioDownloadingWidgetState>();
 
   String? errorMessage;
+  bool isInstalling = false;
 
   @override
   void initState() {
@@ -37,10 +38,17 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
 
   void _startDownload() {
     installer?.descargarEInstalarActualizacion(
+      onProgress: (progress) {
+        // Aquí podrías actualizar la UI con el progreso si es necesario
+      },
       onBytesDownloaded: (mbDownloaded) {
         _downloadingWidgetKey.currentState?.updateBytesDownloaded(mbDownloaded);
       },
-    ).catchError((error) async {
+    ).then((_) {
+      setState(() {
+        isInstalling = true;
+      });
+    }).catchError((error) async {
       setState(() {
         errorMessage =
             'Error durante la descarga o instalación de la APK: $error';
@@ -65,18 +73,13 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
   }
 
   Widget _buildFutureBuilder() {
-    return FutureBuilder(
-      future: installer?.descargarEInstalarActualizacion(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildDownloadingWidget();
-        } else if (snapshot.hasError) {
-          return DioErrorWidget(error: snapshot.error.toString());
-        } else {
-          return _buildSuccessWidget();
-        }
-      },
-    );
+    if (isInstalling) {
+      return _buildSuccessWidget();
+    } else if (errorMessage != null) {
+      return _buildErrorWidget();
+    } else {
+      return _buildDownloadingWidget();
+    }
   }
 
   Widget _buildContainer() {
@@ -101,7 +104,7 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
         ],
       ),
       padding: const EdgeInsets.all(16),
-      child: errorMessage != null ? _buildErrorWidget() : _buildFutureBuilder(),
+      child: _buildFutureBuilder(),
     );
   }
 

@@ -1,126 +1,97 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:install_plugin/install_plugin.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
+import 'file_utils.dart'; // Importamos la clase FileUtils
+import 'prefs_utils.dart'; // Importamos la clase PrefsUtils
 
 class ServicioGestorDeActualizacion {
   final String apkUrl;
+  bool _isInstalling = false; // Flag para evitar instalaciones múltiples
+  bool _isDownloading = false; // Flag para evitar descargas múltiples
 
   ServicioGestorDeActualizacion(this.apkUrl);
 
-  Future<void> descargarEInstalarActualizacion(
-      {Function(double)? onProgress,
-      Function(double)? onBytesDownloaded}) async {
+  Future<void> descargarEInstalarActualizacion({
+    Function(double)? onProgress,
+    Function(double)? onBytesDownloaded,
+  }) async {
+    // Verificar si ya se está descargando o instalando
+    if (_isDownloading || _isInstalling) {
+      debugPrint('::::Operación de descarga o instalación ya en curso.');
+      return;
+    }
+
     try {
-      var savePath = await obtenerRutaGuardado();
+      _isDownloading = true; // Marcar como en curso la descarga
+      var savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
 
       debugPrint(
           '::::Iniciando la descarga de la actualización desde $apkUrl...');
 
-      double totalSizeMB = 0;
       double lastPrintMB = 0;
 
       await Dio().download(
         apkUrl,
         savePath,
         onReceiveProgress: (count, total) {
-          if (total != -1) {
-            totalSizeMB = _calcularTamanoTotalMB(total);
-            _manejarProgreso(count, total, totalSizeMB, lastPrintMB, onProgress,
-                onBytesDownloaded);
-          } else {
-            _manejarProgresoSinTotal(count, lastPrintMB, onBytesDownloaded);
-          }
+          lastPrintMB = _manejarProgresoSinTotal(
+              count, lastPrintMB, onProgress, onBytesDownloaded);
         },
       );
 
       // Guardar en SharedPreferences que la actualización ha sido descargada y la URL
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('update_downloaded', true);
-      await prefs.setString('apk_download_url', apkUrl);
+      await PrefsUtils.guardarEstadoDescarga(true, apkUrl);
 
       debugPrint('::::Descarga completa. Iniciando instalación...');
-      await InstallPlugin.install(savePath);
-      debugPrint('::::Instalación iniciada con éxito.');
+      _isDownloading = false; // Descargar completada
 
-      // Limpieza después de la instalación exitosa
-      await limpiarDatosDeInstalacion();
+      // Verificar si el archivo realmente existe antes de intentar la instalación
+      final fileExists = await FileUtils.verificarArchivo(savePath);
+      if (fileExists) {
+        _isInstalling = true; // Marcar como en curso la instalación
+        await InstallPlugin.install(savePath);
+        debugPrint('::::Instalación iniciada con éxito.');
+
+        // Limpieza después de la instalación exitosa
+        await limpiarDatosDeInstalacion();
+        _isInstalling = false; // Marcar instalación como completada
+      } else {
+        debugPrint(
+            '::::Error: El archivo APK no se encontró en la ruta especificada.');
+      }
     } catch (e) {
       debugPrint('::::Error durante la descarga o instalación de la APK: $e');
+      _isDownloading = false;
+      _isInstalling = false;
       rethrow;
     }
   }
 
-  Future<String> obtenerRutaGuardado() async {
-    var appDocDir = await getTemporaryDirectory();
-    return "${appDocDir.path}/app_update.apk";
-  }
-
-  double _calcularTamanoTotalMB(int total) {
-    return total / (1024 * 1024);
-  }
-
-  void _manejarProgreso(
-      int count,
-      int total,
-      double totalSizeMB,
-      double lastPrintMB,
-      Function(double)? onProgress,
-      Function(double)? onBytesDownloaded) {
-    double progress = (count / total) * 100;
-    progress = progress.clamp(0.0, 100.0);
-    debugPrint('::::Progreso descarga: ${progress.toStringAsFixed(2)}%');
-
+  double _manejarProgresoSinTotal(
+    int count,
+    double lastPrintMB,
+    Function(double)? onProgress,
+    Function(double)? onBytesDownloaded,
+  ) {
     double mbDownloaded = count / (1024 * 1024);
 
-    // Mostrar log cada 5 MB o cuando la descarga esté completa
-    if (mbDownloaded - lastPrintMB >= 5 || mbDownloaded == totalSizeMB) {
-      lastPrintMB = mbDownloaded;
-      debugPrint(
-          '::::Bytes descargados: ${mbDownloaded.toStringAsFixed(2)} MB de ${totalSizeMB.toStringAsFixed(2)} MB');
-    }
-
-    if (onProgress != null) {
-      onProgress(progress);
+    // Mostrar log solo en múltiplos exactos de 5 MB
+    if (mbDownloaded >= lastPrintMB + 5) {
+      lastPrintMB +=
+          5; // Incrementa de 5 en 5 para asegurar la siguiente impresión correcta
+      debugPrint('::::Bytes descargados: ${lastPrintMB.toStringAsFixed(2)} MB');
     }
 
     if (onBytesDownloaded != null) {
       onBytesDownloaded(mbDownloaded);
     }
-  }
 
-  void _manejarProgresoSinTotal(
-      int count, double lastPrintMB, Function(double)? onBytesDownloaded) {
-    double mbDownloaded = count / (1024 * 1024);
-
-    // Mostrar log cada 5 MB cuando no se conoce el tamaño total
-    if (mbDownloaded - lastPrintMB >= 5) {
-      lastPrintMB = mbDownloaded;
-      debugPrint(
-          '::::Bytes descargados: ${mbDownloaded.toStringAsFixed(2)} MB');
-    }
-
-    if (onBytesDownloaded != null) {
-      onBytesDownloaded(mbDownloaded);
-    }
+    return lastPrintMB;
   }
 
   Future<void> limpiarDatosDeInstalacion() async {
-    final prefs = await SharedPreferences.getInstance();
-    final apkFilePath = await obtenerRutaGuardado();
-
-    // Eliminar el archivo APK
-    final file = File(apkFilePath);
-    if (await file.exists()) {
-      await file.delete();
-      debugPrint('::::APK eliminado después de la instalación.');
-    }
-
-    // Limpiar SharedPreferences
-    await prefs.remove('update_downloaded');
-    await prefs.remove('apk_download_url');
-    debugPrint('::::Estado de instalación limpiado.');
+    final savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
+    await FileUtils.eliminarArchivo(savePath);
+    await PrefsUtils.limpiarEstadoDescarga();
   }
 }

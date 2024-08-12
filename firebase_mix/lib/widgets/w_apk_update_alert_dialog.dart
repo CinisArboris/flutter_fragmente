@@ -16,80 +16,120 @@ class UpdateAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(':::: UpdateDialog - Renderizando diálogo de actualización');
     return AlertDialog(
       backgroundColor: Colors.red[600], // Fondo rojo
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      title: const Row(
-        children: [
-          Icon(Icons.system_update, color: Colors.white),
-          SizedBox(width: 10),
-          Text(
-            'Actualización disponible',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 10), // Separación entre título y descripción
-          const Row(
-            children: [
-              Icon(Icons.new_releases, color: Colors.white),
-              SizedBox(width: 5),
-              Text(
-                'Nueva versión:',
-                style: TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
-          Text(
-            mobileVersion,
-            style: const TextStyle(color: Colors.white),
-          ),
-          const SizedBox(height: 10),
-          const Row(
-            children: [
-              Icon(Icons.info_outline, color: Colors.white),
-              SizedBox(width: 5),
-              Text(
-                'Detalles de la versión:',
-                style: TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
-          Text(
-            versionDetail,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: onCancel,
-          child: const Text(
-            'Cancelar',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: onUpdate,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-          ),
-          child: const Text(
-            'Actualizar',
-            style: TextStyle(color: Colors.red),
+      title: _buildTitle(),
+      content: _buildContent(),
+      actions: _buildActions(context),
+    );
+  }
+
+  Widget _buildTitle() {
+    debugPrint(':::: UpdateDialog - Construyendo título del diálogo');
+    return const Row(
+      children: [
+        Icon(Icons.system_update, color: Colors.white),
+        SizedBox(width: 10),
+        Text(
+          'Actualización disponible',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
           ),
         ),
       ],
     );
+  }
+
+  Widget _buildContent() {
+    debugPrint(':::: UpdateDialog - Construyendo contenido del diálogo');
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10), // Separación entre título y descripción
+        _buildNewVersionInfo(),
+        const SizedBox(height: 10),
+        _buildVersionDetails(),
+      ],
+    );
+  }
+
+  Widget _buildNewVersionInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.new_releases, color: Colors.white),
+            SizedBox(width: 5),
+            Text(
+              'Nueva versión:',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+        Text(
+          mobileVersion,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVersionDetails() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.white),
+            SizedBox(width: 5),
+            Text(
+              'Detalles de la versión:',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+        Text(
+          versionDetail,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildActions(BuildContext context) {
+    debugPrint(':::: UpdateDialog - Construyendo botones de acción');
+    return [
+      TextButton(
+        onPressed: () {
+          debugPrint(':::: UpdateDialog - Botón "Cancelar" presionado');
+          onCancel();
+        },
+        child: const Text(
+          'Cancelar',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      ElevatedButton(
+        onPressed: () {
+          debugPrint(':::: UpdateDialog - Botón "Actualizar" presionado');
+          onUpdate();
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+        ),
+        child: const Text(
+          'Actualizar',
+          style: TextStyle(color: Colors.red),
+        ),
+      ),
+    ];
   }
 }

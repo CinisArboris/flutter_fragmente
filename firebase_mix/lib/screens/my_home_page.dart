@@ -1,4 +1,6 @@
 import 'package:firebase_mix/screens/view_update_apk.dart';
+import 'package:firebase_mix/services/file_utils.dart';
+import 'package:firebase_mix/services/prefs_utils.dart';
 import 'package:firebase_mix/services/service_check_version.dart';
 import 'package:firebase_mix/services/servicio_gestor_de_actualizacion.dart';
 import 'package:firebase_mix/widgets/w_info_card.dart';
@@ -78,14 +80,14 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _installDownloadedUpdate() async {
-    final gestor = ServicioGestorDeActualizacion(remoteApkUrl);
-    final savePath = await gestor.obtenerRutaGuardado();
+    final savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
     await InstallPlugin.install(savePath);
     debugPrint(
         '::::Instalación iniciada con éxito desde el método _installDownloadedUpdate.');
 
     // Limpieza después de la instalación exitosa
-    await gestor.limpiarDatosDeInstalacion();
+    await FileUtils.eliminarArchivo(savePath);
+    await PrefsUtils.limpiarEstadoDescarga();
   }
 
   void _showUpdateDialog() {
