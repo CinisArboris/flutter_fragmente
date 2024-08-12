@@ -14,8 +14,11 @@ class DioDownloadingWidgetState extends State<DioDownloadingWidget> {
     setState(() {
       _mbDownloaded = mbDownloaded;
     });
-    debugPrint(
-        ':::: DioDownload - Bytes descargados actualizados: ${_mbDownloaded.toStringAsFixed(2)} MB');
+    // Solo mostrar el log si es un múltiplo de 5
+    if ((_mbDownloaded % 5).abs() < 0.01) {
+      debugPrint(
+          ':::: DioDownload - Bytes descargados actualizados: ${_mbDownloaded.toStringAsFixed(2)} MB');
+    }
   }
 
   @override
