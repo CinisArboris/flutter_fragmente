@@ -75,7 +75,8 @@ class ServicioGestorDeActualizacion {
 
     double mbDownloaded = count / (1024 * 1024);
 
-    if (mbDownloaded - lastPrintMB >= 10 || mbDownloaded == totalSizeMB) {
+    // Mostrar log cada 5 MB o cuando la descarga esté completa
+    if (mbDownloaded - lastPrintMB >= 5 || mbDownloaded == totalSizeMB) {
       lastPrintMB = mbDownloaded;
       debugPrint(
           '::::Bytes descargados: ${mbDownloaded.toStringAsFixed(2)} MB de ${totalSizeMB.toStringAsFixed(2)} MB');
@@ -94,7 +95,8 @@ class ServicioGestorDeActualizacion {
       int count, double lastPrintMB, Function(double)? onBytesDownloaded) {
     double mbDownloaded = count / (1024 * 1024);
 
-    if (mbDownloaded - lastPrintMB >= 10) {
+    // Mostrar log cada 5 MB cuando no se conoce el tamaño total
+    if (mbDownloaded - lastPrintMB >= 5) {
       lastPrintMB = mbDownloaded;
       debugPrint(
           '::::Bytes descargados: ${mbDownloaded.toStringAsFixed(2)} MB');
