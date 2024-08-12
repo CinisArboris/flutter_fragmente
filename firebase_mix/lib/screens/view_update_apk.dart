@@ -14,7 +14,7 @@ class ViewUpdateApk extends StatefulWidget {
 }
 
 class ViewUpdateApkState extends State<ViewUpdateApk> {
-  GestorDeActualizaciones? installer;
+  ServicioGestorDeActualizacion? installer;
   final GlobalKey<DioDownloadingWidgetState> _downloadingWidgetKey =
       GlobalKey<DioDownloadingWidgetState>();
 
@@ -23,7 +23,7 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
   @override
   void initState() {
     super.initState();
-    installer = GestorDeActualizaciones(widget.apkUrl);
+    installer = ServicioGestorDeActualizacion(widget.apkUrl);
 
     if (widget.apkUrl.isEmpty) {
       setState(() {
@@ -40,11 +40,13 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
       onBytesDownloaded: (mbDownloaded) {
         _downloadingWidgetKey.currentState?.updateBytesDownloaded(mbDownloaded);
       },
-    ).catchError((error) {
+    ).catchError((error) async {
       setState(() {
         errorMessage =
             'Error durante la descarga o instalación de la APK: $error';
       });
+      // Limpiar datos en caso de error
+      await installer?.limpiarDatosDeInstalacion();
     });
   }
 
@@ -98,7 +100,7 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16), // Reducir el padding interno
+      padding: const EdgeInsets.all(16),
       child: errorMessage != null ? _buildErrorWidget() : _buildFutureBuilder(),
     );
   }
@@ -106,7 +108,7 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200], // Fondo gris claro
+      backgroundColor: Colors.grey[200],
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
