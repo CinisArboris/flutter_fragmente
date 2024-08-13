@@ -35,8 +35,10 @@ class DioDownloadingWidgetState extends State<DioDownloadingWidget> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-        ':::: DioDownload - Renderizando widget con $_mbDownloaded MB descargados');
+    // No, imprime demasiado.
+    // debugPrint(
+    //   ':::: DioDownload - Renderizando widget con $_mbDownloaded MB descargados',
+    // );
     return Center(
       child: _buildDownloadCard(),
     );
