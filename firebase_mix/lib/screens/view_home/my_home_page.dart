@@ -91,6 +91,7 @@ class MyHomePageState extends State<MyHomePage> {
         onCancel: _onCancel,
         versionDetail: remoteDetail,
         mobileVersion: remoteVersion,
+        apkUrl: remoteApkUrl,
       ),
     ).then((_) {
       debugPrint('::::Diálogo de actualización cerrado.');

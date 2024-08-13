@@ -10,6 +10,7 @@ class WApkUpdateAlertDialog extends StatelessWidget {
   final VoidCallback onCancel;
   final String versionDetail;
   final String mobileVersion;
+  final String apkUrl;
 
   const WApkUpdateAlertDialog({
     super.key,
@@ -17,6 +18,7 @@ class WApkUpdateAlertDialog extends StatelessWidget {
     required this.onCancel,
     required this.versionDetail,
     required this.mobileVersion,
+    required this.apkUrl,
   });
 
   void _logWithSeparator(String message) {
@@ -38,7 +40,7 @@ class WApkUpdateAlertDialog extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ViewUpdateApk(apkUrl: mobileVersion),
+          builder: (context) => ViewUpdateApk(apkUrl: apkUrl),
         ),
       );
     }
