@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:install_plugin/install_plugin.dart';
-import 'file_utils.dart'; // Importamos la clase FileUtils
-import 'prefs_utils.dart'; // Importamos la clase PrefsUtils
+import 'file_utils.dart';
+import 'prefs_utils.dart';
+import 'flags_utils.dart';
 
 class ServicioGestorDeActualizacion {
   final String apkUrl;
-  bool _isInstalling = false; // Flag para evitar instalaciones múltiples
-  bool _isDownloading = false; // Flag para evitar descargas múltiples
 
   ServicioGestorDeActualizacion(this.apkUrl);
 
@@ -16,13 +15,13 @@ class ServicioGestorDeActualizacion {
     Function(double)? onBytesDownloaded,
   }) async {
     // Verificar si ya se está descargando o instalando
-    if (_isDownloading || _isInstalling) {
+    if (await FlagsUtils.isDownloading() || await FlagsUtils.isInstalling()) {
       debugPrint('::::Operación de descarga o instalación ya en curso.');
       return;
     }
 
     try {
-      _isDownloading = true; // Marcar como en curso la descarga
+      await FlagsUtils.setDownloading(true); // Marcar como en curso la descarga
       var savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
 
       debugPrint(
@@ -43,26 +42,28 @@ class ServicioGestorDeActualizacion {
       await PrefsUtils.guardarEstadoDescarga(true, apkUrl);
 
       debugPrint('::::Descarga completa. Iniciando instalación...');
-      _isDownloading = false; // Descargar completada
+      await FlagsUtils.setDownloading(false); // Descargar completada
 
       // Verificar si el archivo realmente existe antes de intentar la instalación
       final fileExists = await FileUtils.verificarArchivo(savePath);
       if (fileExists) {
-        _isInstalling = true; // Marcar como en curso la instalación
+        await FlagsUtils.setInstalling(
+            true); // Marcar como en curso la instalación
         await InstallPlugin.install(savePath);
         debugPrint('::::Instalación iniciada con éxito.');
 
         // Limpieza después de la instalación exitosa
         await limpiarDatosDeInstalacion();
-        _isInstalling = false; // Marcar instalación como completada
+        await FlagsUtils.setInstalling(
+            false); // Marcar instalación como completada
       } else {
         debugPrint(
             '::::Error: El archivo APK no se encontró en la ruta especificada.');
       }
     } catch (e) {
       debugPrint('::::Error durante la descarga o instalación de la APK: $e');
-      _isDownloading = false;
-      _isInstalling = false;
+      await FlagsUtils.setDownloading(false);
+      await FlagsUtils.setInstalling(false);
       rethrow;
     }
   }
@@ -93,5 +94,6 @@ class ServicioGestorDeActualizacion {
     final savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
     await FileUtils.eliminarArchivo(savePath);
     await PrefsUtils.limpiarEstadoDescarga();
+    await FlagsUtils.clearFlags();
   }
 }

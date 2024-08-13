@@ -1,15 +1,11 @@
-import 'package:firebase_mix/screens/view_update_apk.dart';
-import 'package:firebase_mix/services/file_utils.dart';
-import 'package:firebase_mix/services/prefs_utils.dart';
-import 'package:firebase_mix/services/service_check_version.dart';
-import 'package:firebase_mix/services/servicio_gestor_de_actualizacion.dart';
-import 'package:firebase_mix/widgets/w_info_card.dart';
-import 'package:firebase_mix/widgets/w_apk_update_alert_dialog.dart';
+import 'package:firebase_mix/screens/view_default_test.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_mix/screens/view_update_apk.dart';
+import 'package:firebase_mix/services/service_check_version.dart';
+import 'package:firebase_mix/widgets/w_info_card.dart';
+import 'package:firebase_mix/widgets/apk_update/w_apk_update_alert_dialog.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:install_plugin/install_plugin.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'view_default_test.dart';
+import 'update_manager.dart';
 
 class MyHomePage extends StatefulWidget {
   final FirebaseAnalytics analytics;
@@ -25,6 +21,7 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   final ServiceCheckVersion _versionCheckService = ServiceCheckVersion();
+  final UpdateManager _updateManager = UpdateManager();
   String localVersion = '';
   String remoteDetail = '';
   String remoteVersion = '';
@@ -42,7 +39,10 @@ class MyHomePageState extends State<MyHomePage> {
     debugPrint('::::Iniciando verificación de actualizaciones...');
     await _versionCheckService.checkVersion();
     _updateVersionInfo();
-    if (isUpdateAvailable && !_isDialogShown) {
+    if (!isUpdateAvailable) {
+      debugPrint('::::No se requiere actualización. Limpiando archivos...');
+      await _updateManager.limpiarDatosDeInstalacion(remoteApkUrl);
+    } else if (isUpdateAvailable && !_isDialogShown) {
       _handleUpdateDialog();
     }
   }
@@ -63,37 +63,30 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _handleUpdateDialog() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool updateDownloaded = prefs.getBool('update_downloaded') ?? false;
+    final bool updateDownloaded =
+        await _updateManager.isUpdateDownloaded(remoteApkUrl);
 
-    if (isUpdateAvailable && !updateDownloaded && !_isDialogShown) {
-      debugPrint('::::Mostrando diálogo de actualización...');
-      _isDialogShown = true;
-      _showUpdateDialog();
-    } else if (updateDownloaded) {
+    if (updateDownloaded) {
       debugPrint('::::Actualización ya descargada. Iniciando instalación.');
       _installDownloadedUpdate();
+    } else if (isUpdateAvailable && !_isDialogShown) {
+      debugPrint('::::Mostrando diálogo de actualización...');
+      _isDialogShown = true;
+      _showUpdateDialog(); // Aseguramos que se muestra el diálogo
     } else {
-      debugPrint('::::Error en la actualización, limpieza de estado...');
-      await limpiarDatosDeInstalacion();
+      debugPrint(
+          '::::Error en la actualización, manteniendo archivos para reintento.');
     }
   }
 
   void _installDownloadedUpdate() async {
-    final savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
-    await InstallPlugin.install(savePath);
-    debugPrint(
-        '::::Instalación iniciada con éxito desde el método _installDownloadedUpdate.');
-
-    // Limpieza después de la instalación exitosa
-    await FileUtils.eliminarArchivo(savePath);
-    await PrefsUtils.limpiarEstadoDescarga();
+    await _updateManager.installDownloadedUpdate(remoteApkUrl);
   }
 
   void _showUpdateDialog() {
     showDialog(
       context: context,
-      builder: (context) => UpdateAlertDialog(
+      builder: (context) => WApkUpdateAlertDialog(
         onUpdate: _onUpdate,
         onCancel: _onCancel,
         versionDetail: remoteDetail,
@@ -139,11 +132,6 @@ class MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => const ViewDefaultTest()),
     );
-  }
-
-  Future<void> limpiarDatosDeInstalacion() async {
-    final gestor = ServicioGestorDeActualizacion(remoteApkUrl);
-    await gestor.limpiarDatosDeInstalacion();
   }
 
   @override
