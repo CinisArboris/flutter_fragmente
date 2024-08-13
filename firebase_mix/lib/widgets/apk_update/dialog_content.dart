@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 Widget buildDialogContent(String versionDetail, String mobileVersion) {
-  debugPrint(':::: UpdateDialog - Construyendo contenido del diálogo');
+  _logWithSeparator('Construyendo contenido del diálogo');
   return Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -16,6 +16,7 @@ Widget buildDialogContent(String versionDetail, String mobileVersion) {
 }
 
 Widget _buildNewVersionInfo(String mobileVersion) {
+  _logWithSeparator('Construyendo información de la nueva versión');
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -38,6 +39,7 @@ Widget _buildNewVersionInfo(String mobileVersion) {
 }
 
 Widget _buildVersionDetails(String versionDetail) {
+  _logWithSeparator('Construyendo detalles de la versión');
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -57,4 +59,8 @@ Widget _buildVersionDetails(String versionDetail) {
       ),
     ],
   );
+}
+
+void _logWithSeparator(String message) {
+  debugPrint(':::: UpdateDialog - $message');
 }

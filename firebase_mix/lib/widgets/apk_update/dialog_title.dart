@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 Widget buildDialogTitle() {
-  debugPrint(':::: UpdateDialog - Construyendo título del diálogo');
+  _logWithSeparator('Construyendo título del diálogo');
   return const Row(
     children: [
       Icon(Icons.system_update, color: Colors.white),
@@ -16,4 +16,8 @@ Widget buildDialogTitle() {
       ),
     ],
   );
+}
+
+void _logWithSeparator(String message) {
+  debugPrint(':::: UpdateDialog - $message');
 }

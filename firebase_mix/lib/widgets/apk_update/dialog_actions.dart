@@ -5,11 +5,16 @@ List<Widget> buildDialogActions(
   Future<void> Function(BuildContext) checkForDownloadedUpdate,
   VoidCallback onCancel,
 ) {
-  debugPrint(':::: UpdateDialog - Construyendo botones de acción');
+  void _logWithSeparator(String message) {
+    debugPrint(':::: UpdateDialog - $message');
+  }
+
+  _logWithSeparator('Construyendo botones de acción');
+
   return [
     TextButton(
       onPressed: () {
-        debugPrint(':::: UpdateDialog - Botón "Cancelar" presionado');
+        _logWithSeparator('Botón "Cancelar" presionado');
         onCancel();
       },
       child: const Text(
@@ -19,7 +24,7 @@ List<Widget> buildDialogActions(
     ),
     ElevatedButton(
       onPressed: () async {
-        debugPrint(':::: UpdateDialog - Botón "Actualizar" presionado');
+        _logWithSeparator('Botón "Actualizar" presionado');
         await checkForDownloadedUpdate(context);
       },
       style: ElevatedButton.styleFrom(

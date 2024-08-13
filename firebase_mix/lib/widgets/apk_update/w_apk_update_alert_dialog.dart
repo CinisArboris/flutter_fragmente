@@ -19,17 +19,21 @@ class WApkUpdateAlertDialog extends StatelessWidget {
     required this.mobileVersion,
   });
 
+  void _logWithSeparator(String message) {
+    debugPrint(
+        '\n-----------------------------\n:::: UpdateDialog - $message\n-----------------------------\n');
+  }
+
   Future<void> _checkForDownloadedUpdate(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     bool updateDownloaded = prefs.getBool('update_downloaded') ?? false;
 
     if (updateDownloaded) {
-      debugPrint(
-          ':::: UpdateDialog - Actualización ya descargada, procediendo a instalación.');
+      _logWithSeparator(
+          'Actualización ya descargada, procediendo a instalación.');
       onUpdate(); // Proceder directamente a la instalación
     } else {
-      debugPrint(
-          ':::: UpdateDialog - No hay actualización descargada, iniciando descarga.');
+      _logWithSeparator('No hay actualización descargada, iniciando descarga.');
       Navigator.of(context).pop();
       Navigator.push(
         context,
@@ -42,7 +46,7 @@ class WApkUpdateAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(':::: UpdateDialog - Renderizando diálogo de actualización');
+    _logWithSeparator('Renderizando diálogo de actualización');
     return AlertDialog(
       backgroundColor: Colors.red[600],
       shape: RoundedRectangleBorder(

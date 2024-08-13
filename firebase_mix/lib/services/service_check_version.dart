@@ -13,18 +13,23 @@ class ServiceCheckVersion {
   String remoteApkUrl = ''; // URL de descarga de la APK desde Firebase
   bool isUpdateAvailable = false;
 
+  void _logWithSeparator(String message) {
+    debugPrint(
+        '\n-----------------------------\n$message\n-----------------------------\n');
+  }
+
   Future<void> checkVersion() async {
     try {
-      debugPrint('::::Configurando Firebase Remote Config...');
+      _logWithSeparator('Configurando Firebase Remote Config...');
       await _remoteConfig.setConfigSettings(RemoteConfigSettings(
         fetchTimeout: const Duration(seconds: 10),
         minimumFetchInterval: const Duration(minutes: 1),
       ));
-      debugPrint('::::Firebase Remote Config configurado.');
+      _logWithSeparator('Firebase Remote Config configurado.');
 
-      debugPrint('::::Fetching y activando configuraciones...');
+      _logWithSeparator('Fetching y activando configuraciones...');
       await _remoteConfig.fetchAndActivate();
-      debugPrint('::::Configuraciones activadas.');
+      _logWithSeparator('Configuraciones activadas.');
 
       // Obteniendo datos desde Firebase Remote Config
       remoteVersion = _remoteConfig.getString('svr_ultima_version');
@@ -35,38 +40,38 @@ class ServiceCheckVersion {
       if (remoteVersion.isEmpty ||
           remoteDetail.isEmpty ||
           remoteApkUrl.isEmpty) {
-        debugPrint(
+        _logWithSeparator(
             'Datos obtenidos desde Firebase son inválidos. Abandonando la comparación.');
         return;
       }
 
-      debugPrint('::::Versión en servidor (Firebase): $remoteVersion');
-      debugPrint('::::Detalle de la versión (Firebase): $remoteDetail');
-      debugPrint('::::URL de descarga de la APK (Firebase): $remoteApkUrl');
+      _logWithSeparator('Versión en servidor (Firebase): $remoteVersion\n'
+          'Detalle de la versión (Firebase): $remoteDetail\n'
+          'URL de descarga de la APK (Firebase): $remoteApkUrl');
 
       // Obteniendo la versión instalada en el dispositivo
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       localVersion = packageInfo.version;
 
-      debugPrint('::::Versión del móvil (Local): $localVersion');
-      debugPrint('::::Comparando versiones...');
+      _logWithSeparator('Versión del móvil (Local): $localVersion\n'
+          'Comparando versiones...');
 
       // Comparando la versión local con la versión remota
       if (localVersion != remoteVersion) {
         isUpdateAvailable = true;
-        debugPrint('::::Se requiere actualización.');
+        _logWithSeparator('Se requiere actualización.');
       } else {
-        debugPrint('::::No se requiere actualización.');
+        _logWithSeparator('No se requiere actualización.');
       }
     } catch (e) {
-      debugPrint('::::Error durante la verificación de versión: $e');
+      _logWithSeparator('Error durante la verificación de versión: $e');
       rethrow;
     }
   }
 
   Future<void> redirectToDownload() async {
     if (remoteApkUrl.isEmpty) {
-      debugPrint(
+      _logWithSeparator(
           'URL de descarga de la APK es inválida. No se puede iniciar la descarga.');
       return;
     }
@@ -75,18 +80,20 @@ class ServiceCheckVersion {
       var appDocDir = await getTemporaryDirectory();
       String savePath = "${appDocDir.path}/app_update.apk";
 
-      debugPrint('::::Iniciando la descarga de la APK desde $remoteApkUrl...');
+      _logWithSeparator(
+          'Iniciando la descarga de la APK desde $remoteApkUrl...');
       await Dio().download(remoteApkUrl, savePath,
           onReceiveProgress: (count, total) {
         debugPrint(
-            'Progreso de descarga: ${(count / total * 100).toStringAsFixed(0)}%');
+            ':::: Progreso de descarga: ${(count / total * 100).toStringAsFixed(0)}%');
       });
 
-      debugPrint('::::Descarga completa. Iniciando instalación...');
+      _logWithSeparator('Descarga completa. Iniciando instalación...');
       await InstallPlugin.install(savePath);
-      debugPrint('::::Instalación iniciada con éxito.');
+      _logWithSeparator('Instalación iniciada con éxito.');
     } catch (e) {
-      debugPrint('::::Error durante la descarga o instalación de la APK: $e');
+      _logWithSeparator(
+          'Error durante la descarga o instalación de la APK: $e');
       rethrow;
     }
   }
