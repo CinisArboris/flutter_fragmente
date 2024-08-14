@@ -5,7 +5,7 @@ import 'package:install_plugin/install_plugin.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils_services/file_utils.dart';
+import '../utils_services/utils_apk.dart';
 import '../utils_services/prefs_utils.dart';
 
 class ServiceCheckVersion {
@@ -117,8 +117,8 @@ class ServiceCheckVersion {
   }
 
   Future<void> limpiarDatosDeInstalacion() async {
-    final savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
-    await FileUtils.eliminarArchivo(savePath);
+    final savePath = await UtilsAPK.obtenerRutaGuardado('app_update.apk');
+    await UtilsAPK.eliminarArchivo(savePath);
     await PrefsUtils.limpiarEstadoDescarga();
     _logWithSeparator('Datos de instalación limpiados.');
   }

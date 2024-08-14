@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:install_plugin/install_plugin.dart';
-import '../utils_services/file_utils.dart';
+import '../utils_services/utils_apk.dart';
 import '../utils_services/prefs_utils.dart';
 import '../utils_services/flags_utils.dart';
 
@@ -24,7 +24,7 @@ class ServicioGestorDeActualizacion {
 
     try {
       await FlagsUtils.setDownloading(true); // Marcar como en curso la descarga
-      var savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
+      var savePath = await UtilsAPK.obtenerRutaGuardado('app_update.apk');
 
       debugPrint(
         ':::: Servicio Gestor Actualizacion - Iniciando la descarga de la actualización desde $apkUrl...',
@@ -50,7 +50,7 @@ class ServicioGestorDeActualizacion {
       await FlagsUtils.setDownloading(false); // Descargar completada
 
       // Verificar si el archivo realmente existe antes de intentar la instalación
-      final fileExists = await FileUtils.verificarArchivo(savePath);
+      final fileExists = await UtilsAPK.verificarArchivo(savePath);
       if (fileExists) {
         await FlagsUtils.setInstalling(
             true); // Marcar como en curso la instalación
@@ -106,8 +106,8 @@ class ServicioGestorDeActualizacion {
   // Este método no se llama automáticamente ahora, solo cuando estés seguro de que
   // la instalación fue completada y es seguro limpiar
   Future<void> limpiarDatosDeInstalacion() async {
-    final savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
-    await FileUtils.eliminarArchivo(savePath);
+    final savePath = await UtilsAPK.obtenerRutaGuardado('app_update.apk');
+    await UtilsAPK.eliminarArchivo(savePath);
     await PrefsUtils.limpiarEstadoDescarga();
     await FlagsUtils.clearFlags();
     debugPrint(

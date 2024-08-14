@@ -2,11 +2,19 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-class FileUtils {
+class UtilsAPK {
   static void _logWithSeparator(String message) {
     debugPrint('\n----------------------------------------');
-    debugPrint(':::: FileUtils - $message');
+    debugPrint(':::: UtilsAPK - $message');
     debugPrint('----------------------------------------\n');
+  }
+
+  // Nueva función para extraer el nombre del archivo desde la URL
+  static String extraerNombreDesdeUrl(String url) {
+    Uri uri = Uri.parse(url);
+    String fileName = uri.pathSegments.last;
+    _logWithSeparator('Nombre de archivo extraído de la URL: $fileName');
+    return fileName;
   }
 
   static Future<String> obtenerRutaGuardado(String fileName) async {

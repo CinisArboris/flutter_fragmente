@@ -1,11 +1,11 @@
 import 'package:firebase_mix/screens/view_update_apk.dart';
+import 'package:firebase_mix/utils_services/utils_apk.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dialog_title.dart'; // Importamos el archivo auxiliar para el título
-import 'dialog_content.dart'; // Importamos el archivo auxiliar para el contenido
-import 'dialog_actions.dart'; // Importamos el archivo auxiliar para las acciones
+import 'dialog_title.dart';
+import 'dialog_content.dart';
 
-class WApkUpdateAlertDialog extends StatelessWidget {
+class WApkUpdateAlertDialog extends StatefulWidget {
   final VoidCallback onUpdate;
   final VoidCallback onCancel;
   final String versionDetail;
@@ -21,28 +21,48 @@ class WApkUpdateAlertDialog extends StatelessWidget {
     required this.apkUrl,
   });
 
+  @override
+  WApkUpdateAlertDialogState createState() => WApkUpdateAlertDialogState();
+}
+
+class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
   void _logWithSeparator(String message) {
-    debugPrint(
-        '\n-----------------------------\n:::: UpdateDialog - $message\n-----------------------------\n');
+    debugPrint('\n-----------------------------');
+    debugPrint(':::: UpdateDialog - $message');
+    debugPrint('-----------------------------\n');
   }
 
-  Future<void> _checkForDownloadedUpdate(BuildContext context) async {
+  Future<void> _checkForDownloadedUpdate() async {
     final prefs = await SharedPreferences.getInstance();
     bool updateDownloaded = prefs.getBool('update_downloaded') ?? false;
 
-    if (updateDownloaded) {
+    // Obtener el nombre del archivo desde la URL
+    final fileName = UtilsAPK.extraerNombreDesdeUrl(widget.apkUrl);
+
+    // Obtener la ruta del archivo donde se guarda la APK
+    final filePath = await UtilsAPK.obtenerRutaGuardado(fileName);
+
+    if (!mounted) return;
+
+    if (updateDownloaded && await UtilsAPK.verificarArchivo(filePath)) {
       _logWithSeparator(
-          'Actualización ya descargada, procediendo a instalación.');
-      onUpdate(); // Proceder directamente a la instalación
+          'Actualización ya descargada y archivo encontrado, procediendo a instalación.');
+      widget.onUpdate(); // Proceder directamente a la instalación
     } else {
-      _logWithSeparator('No hay actualización descargada, iniciando descarga.');
-      Navigator.of(context).pop();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ViewUpdateApk(apkUrl: apkUrl),
-        ),
-      );
+      _logWithSeparator(
+          'Archivo no encontrado o no se ha descargado la actualización, iniciando descarga.');
+      if (mounted) {
+        // Eliminar cualquier archivo existente antes de iniciar una nueva descarga
+        await UtilsAPK.eliminarArchivo(filePath);
+
+        Navigator.of(context).pop();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ViewUpdateApk(apkUrl: widget.apkUrl),
+          ),
+        );
+      }
     }
   }
 
@@ -54,12 +74,33 @@ class WApkUpdateAlertDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      // Usamos la función importada para construir el título
       title: buildDialogTitle(),
-      // Usamos la función importada para construir el contenido
-      content: buildDialogContent(versionDetail, mobileVersion),
-      // Usamos la función importada para construir las acciones
-      actions: buildDialogActions(context, _checkForDownloadedUpdate, onCancel),
+      content: buildDialogContent(widget.versionDetail, widget.mobileVersion),
+      actions: [
+        TextButton(
+          onPressed: () {
+            _logWithSeparator('Botón "Cancelar" presionado');
+            widget.onCancel();
+          },
+          child: const Text(
+            'Cancelar',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            _logWithSeparator('Botón "Actualizar" presionado');
+            await _checkForDownloadedUpdate();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+          ),
+          child: const Text(
+            'Actualizar',
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+      ],
     );
   }
 }
