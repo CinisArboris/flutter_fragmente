@@ -7,6 +7,8 @@ class SharedPreferencesAPK {
   static const String _apkUrlKey = 'apk_url';
   static const String _apkFileNameKey = 'apk_file_name';
   static const String _updateDownloadedKey = 'update_downloaded';
+  static const String _apkVersionKey = 'apk_version';
+  static const String _apkDetailKey = 'apk_detail';
 
   static void _logWithSeparator(String message) {
     debugPrint('\n----------------------------------------');
@@ -51,6 +53,20 @@ class SharedPreferencesAPK {
     _logWithSeparator('Estado de descarga de APK guardado: $value');
   }
 
+  /// Guarda la versión del APK
+  static Future<void> setApkVersion(String version) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_apkVersionKey, version);
+    _logWithSeparator('Versión del APK guardada: $version');
+  }
+
+  /// Guarda el detalle de la versión del APK
+  static Future<void> setApkDetail(String detail) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_apkDetailKey, detail);
+    _logWithSeparator('Detalle del APK guardado: $detail');
+  }
+
   // Getters
 
   /// Obtiene el estado de la flag "isDownloading"
@@ -93,6 +109,22 @@ class SharedPreferencesAPK {
     return value;
   }
 
+  /// Obtiene la versión del APK
+  static Future<String?> getApkVersion() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? version = prefs.getString(_apkVersionKey);
+    _logWithSeparator('Versión del APK obtenida: $version');
+    return version;
+  }
+
+  /// Obtiene el detalle de la versión del APK
+  static Future<String?> getApkDetail() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? detail = prefs.getString(_apkDetailKey);
+    _logWithSeparator('Detalle del APK obtenido: $detail');
+    return detail;
+  }
+
   // Clear methods
 
   /// Limpia el estado de la descarga de la APK y las flags relacionadas
@@ -101,6 +133,8 @@ class SharedPreferencesAPK {
     await prefs.remove(_updateDownloadedKey);
     await prefs.remove(_apkUrlKey);
     await prefs.remove(_apkFileNameKey);
+    await prefs.remove(_apkVersionKey);
+    await prefs.remove(_apkDetailKey);
     _logWithSeparator('Estado de instalación y flags relacionadas limpiadas.');
   }
 
@@ -112,6 +146,8 @@ class SharedPreferencesAPK {
     await prefs.remove(_apkUrlKey);
     await prefs.remove(_apkFileNameKey);
     await prefs.remove(_updateDownloadedKey);
+    await prefs.remove(_apkVersionKey);
+    await prefs.remove(_apkDetailKey);
     _logWithSeparator('Todas las flags y datos relacionados limpiados.');
   }
 }

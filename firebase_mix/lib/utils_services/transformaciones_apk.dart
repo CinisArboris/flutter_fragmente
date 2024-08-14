@@ -24,11 +24,39 @@ class TransformacionesAPK {
     await SharedPreferencesAPK.setApkFileName(fileName);
   }
 
+  /// Guarda la versión del APK
+  static Future<void> setApkVersion(String version) async {
+    await SharedPreferencesAPK.setApkVersion(version);
+    _logWithSeparator('Versión del APK guardada: $version');
+  }
+
+  /// Guarda el detalle de la versión del APK
+  static Future<void> setApkDetail(String detail) async {
+    await SharedPreferencesAPK.setApkDetail(detail);
+    _logWithSeparator('Detalle de la versión del APK guardado: $detail');
+  }
+
+  /// Guarda el estado de la descarga de la APK
+  static Future<void> setApkUpdateDownloaded(bool value) async {
+    await SharedPreferencesAPK.setApkUpdateDownloaded(value);
+    _logWithSeparator('Estado de descarga de la APK guardado: $value');
+  }
+
   // Getters
 
   /// Obtiene la URL del APK guardada en SharedPreferences
   static Future<String?> getSavedApkUrl() async {
     return await SharedPreferencesAPK.getApkUrl();
+  }
+
+  /// Obtiene la versión del APK guardada en SharedPreferences
+  static Future<String?> getApkVersion() async {
+    return await SharedPreferencesAPK.getApkVersion();
+  }
+
+  /// Obtiene el detalle de la versión del APK guardado en SharedPreferences
+  static Future<String?> getApkDetail() async {
+    return await SharedPreferencesAPK.getApkDetail();
   }
 
   /// Obtiene la ruta completa de guardado para el archivo APK
@@ -51,6 +79,14 @@ class TransformacionesAPK {
     _logWithSeparator(
         'Estado de descarga de la APK: ${updateDownloaded ? "Descargada" : "No descargada"}');
     return updateDownloaded;
+  }
+
+  // Clear methods
+
+  /// Limpia el estado de la descarga de la APK y las flags relacionadas
+  static Future<void> clearApkDownloadState() async {
+    await SharedPreferencesAPK.clearApkDownloadState();
+    _logWithSeparator('Estado de descarga y flags relacionadas limpiadas.');
   }
 
   // Transformaciones
