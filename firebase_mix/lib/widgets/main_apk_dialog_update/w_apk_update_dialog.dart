@@ -1,6 +1,6 @@
 import 'package:firebase_mix/screens/view_update_apk.dart';
+import 'package:firebase_mix/utils_services/transformaciones_apk.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dialog_title.dart';
 import 'dialog_content.dart';
 
@@ -32,35 +32,28 @@ class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
   }
 
   Future<void> _checkForDownloadedUpdate() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool updateDownloaded = prefs.getBool('update_downloaded') ?? false;
+    // Verificar si la actualización ya se ha descargado
+    bool updateDownloaded = await TransformacionesAPK.isApkUpdateDownloaded();
 
-    // Obtener el nombre del archivo desde la URL
-    final fileName = UtilsAPK.extraerNombreDesdeUrl(widget.apkUrl);
-
-    // Obtener la ruta del archivo donde se guarda la APK
-    final filePath = await UtilsAPK.obtenerRutaGuardado(fileName);
+    // Verificar si el archivo APK existe en la ruta guardada
+    bool fileExists = await TransformacionesAPK.checkIfApkExists();
 
     if (!mounted) return;
 
-    if (updateDownloaded && await UtilsAPK.verificarArchivo(filePath)) {
+    if (updateDownloaded && fileExists) {
       _logWithSeparator(
           'Actualización ya descargada y archivo encontrado, procediendo a instalación.');
-      if (mounted) {
-        widget.onUpdate(); // Proceder directamente a la instalación
-      }
+      widget.onUpdate(); // Proceder directamente a la instalación
     } else {
       _logWithSeparator(
           'Archivo no encontrado o no se ha descargado la actualización, iniciando descarga.');
-      if (mounted) {
-        _startDownloadAgain(filePath);
-      }
+      _startDownloadAgain();
     }
   }
 
-  void _startDownloadAgain(String filePath) async {
+  Future<void> _startDownloadAgain() async {
     // Eliminar cualquier archivo existente antes de iniciar una nueva descarga
-    await UtilsAPK.eliminarArchivo(filePath);
+    await TransformacionesAPK.deleteExistingApk();
 
     if (mounted) {
       Navigator.of(context).pop();

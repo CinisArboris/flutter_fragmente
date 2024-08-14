@@ -1,7 +1,7 @@
 import 'package:firebase_mix/screens/view_home/update_body.dart';
 import 'package:firebase_mix/screens/view_update_apk.dart';
 import 'package:firebase_mix/services/handler_view.dart';
-import 'package:firebase_mix/widgets/apk_update/w_apk_update_alert_dialog.dart';
+import 'package:firebase_mix/widgets/main_apk_dialog_update/w_apk_update_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 

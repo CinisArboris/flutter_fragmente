@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_mix/services/servicio_gestor_de_actualizacion.dart';
+import 'package:firebase_mix/utils_services/transformaciones_apk.dart';
 import 'package:firebase_mix/widgets/w_apk_dio_download.dart';
 import 'package:firebase_mix/widgets/w_apk_dio_error.dart';
 import 'package:firebase_mix/widgets/w_apk_dio_success.dart';
@@ -19,6 +20,7 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
       GlobalKey<DioDownloadingWidgetState>();
 
   String? errorMessage;
+  bool isDownloading = false;
   bool isInstalling = false;
 
   @override
@@ -36,26 +38,52 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
     }
   }
 
-  void _startDownload() {
-    installer?.descargarEInstalarActualizacion(
-      onProgress: (progress) {
-        // Aquí podrías actualizar la UI con el progreso si es necesario
-      },
-      onBytesDownloaded: (mbDownloaded) {
-        _downloadingWidgetKey.currentState?.updateBytesDownloaded(mbDownloaded);
-      },
-    ).then((_) {
+  void _startDownload() async {
+    // Actualizamos el estado antes de iniciar la descarga
+    setState(() {
+      isDownloading = true;
+      errorMessage = null;
+    });
+
+    try {
+      // Iniciar el proceso de descarga e instalación
+      await installer?.descargarEInstalarActualizacion(
+        onProgress: (progress) {
+          // Actualizar la UI con el progreso de la descarga si es necesario
+        },
+        onBytesDownloaded: (mbDownloaded) {
+          _downloadingWidgetKey.currentState
+              ?.updateBytesDownloaded(mbDownloaded);
+        },
+      );
+
+      // Verificar si el archivo realmente existe después de la descarga
+      final fileExists = await TransformacionesAPK.checkIfApkExists();
+
+      if (fileExists) {
+        setState(() {
+          isDownloading = false;
+          isInstalling = true;
+        });
+      } else {
+        // Si el archivo no se encuentra después de la descarga, mostramos un error
+        setState(() {
+          isDownloading = false;
+          errorMessage =
+              'El archivo APK no se encontró después de la descarga.';
+        });
+      }
+    } catch (error) {
+      // Capturamos cualquier error durante la descarga e instalación
       setState(() {
-        isInstalling = true;
-      });
-    }).catchError((error) async {
-      setState(() {
+        isDownloading = false;
         errorMessage =
             'Error durante la descarga o instalación de la APK: $error';
       });
+
       // Limpiar datos en caso de error
       await installer?.limpiarDatosDeInstalacion();
-    });
+    }
   }
 
   Widget _buildErrorWidget() {
@@ -72,12 +100,15 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
     return const DioSuccessWidget();
   }
 
-  Widget _buildFutureBuilder() {
-    if (isInstalling) {
+  Widget _buildContent() {
+    if (isDownloading) {
+      return _buildDownloadingWidget();
+    } else if (isInstalling) {
       return _buildSuccessWidget();
     } else if (errorMessage != null) {
       return _buildErrorWidget();
     } else {
+      // Estado por defecto para mostrar el widget de descarga
       return _buildDownloadingWidget();
     }
   }
@@ -104,7 +135,7 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
         ],
       ),
       padding: const EdgeInsets.all(16),
-      child: _buildFutureBuilder(),
+      child: _buildContent(),
     );
   }
 
