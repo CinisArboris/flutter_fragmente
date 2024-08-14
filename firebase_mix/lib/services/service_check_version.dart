@@ -1,12 +1,9 @@
+import 'package:firebase_mix/utils_services/transformaciones_apk.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:install_plugin/install_plugin.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../utils_services/utils_apk.dart';
-import '../utils_services/prefs_utils.dart';
 
 class ServiceCheckVersion {
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
@@ -16,9 +13,10 @@ class ServiceCheckVersion {
   String remoteApkUrl = ''; // URL de descarga de la APK desde Firebase
   bool isUpdateAvailable = false;
 
-  void _logWithSeparator(String message) {
-    debugPrint(
-        '\n-----------------------------\n$message\n-----------------------------\n');
+  static void _logWithSeparator(String message) {
+    debugPrint('\n----------------------------------------');
+    debugPrint(':::: ServiceCheckVersion - $message');
+    debugPrint('----------------------------------------\n');
   }
 
   Future<void> checkVersion() async {
@@ -39,33 +37,42 @@ class ServiceCheckVersion {
       remoteDetail = _remoteConfig.getString('svr_detalle_version');
       remoteApkUrl = _remoteConfig.getString('svr_url_descargar_apk');
 
+      // Guardar los detalles obtenidos desde Firebase en SharedPreferences a través de TransformacionesAPK
+      await TransformacionesAPK.setApkVersion(remoteVersion);
+      await TransformacionesAPK.setApkDetail(remoteDetail);
+      await TransformacionesAPK.setApkUrlAndProcessFileName(remoteApkUrl);
+
       // Verificar si los datos obtenidos desde Firebase son válidos
       if (remoteVersion.isEmpty ||
           remoteDetail.isEmpty ||
           remoteApkUrl.isEmpty) {
         _logWithSeparator(
-            'Datos obtenidos desde Firebase son inválidos. Abandonando la comparación.');
+          'Datos obtenidos desde Firebase son inválidos. Abandonando la comparación.',
+        );
         return;
       }
 
-      _logWithSeparator('Versión en servidor (Firebase): $remoteVersion\n'
-          'Detalle de la versión (Firebase): $remoteDetail\n'
-          'URL de descarga de la APK (Firebase): $remoteApkUrl');
+      _logWithSeparator(
+        'Versión en servidor (Firebase): $remoteVersion\nDetalle de la versión (Firebase): $remoteDetail\nURL de descarga de la APK (Firebase): $remoteApkUrl',
+      );
 
       // Obteniendo la versión instalada en el dispositivo
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       localVersion = packageInfo.version;
 
-      _logWithSeparator('Versión del móvil (Local): $localVersion\n'
-          'Comparando versiones...');
+      _logWithSeparator(
+        'Versión del móvil (Local): $localVersion\nComparando versiones...',
+      );
 
       // Comparando la versión local con la versión remota
       if (localVersion != remoteVersion) {
         isUpdateAvailable = true;
         _logWithSeparator('Se requiere actualización.');
+        await TransformacionesAPK.setApkUpdateDownloaded(false);
       } else {
         _logWithSeparator('No se requiere actualización.');
-        await limpiarDatosDeInstalacion(); // Limpia datos si no se necesita actualización
+        // Limpia datos si no se necesita actualización
+        await limpiarDatosDeInstalacion();
       }
     } catch (e) {
       _logWithSeparator('Error durante la verificación de versión: $e');
@@ -81,22 +88,25 @@ class ServiceCheckVersion {
     }
 
     try {
-      var appDocDir = await getTemporaryDirectory();
-      String savePath = "${appDocDir.path}/app_update.apk";
+      final savePath = await TransformacionesAPK.getApkSavePath();
 
       _logWithSeparator(
-          'Iniciando la descarga de la APK desde $remoteApkUrl...');
+        'Iniciando la descarga de la APK desde $remoteApkUrl...',
+      );
       await Dio().download(remoteApkUrl, savePath,
           onReceiveProgress: (count, total) {
         _logWithSeparator(
-            'Progreso de descarga: ${(count / total * 100).toStringAsFixed(0)}%');
+          'Progreso de descarga: ${(count / total * 100).toStringAsFixed(0)}%',
+        );
       });
 
       _logWithSeparator('Descarga completa. Iniciando instalación...');
+      await TransformacionesAPK.setApkUpdateDownloaded(true);
       await installDownloadedUpdate(savePath);
     } catch (e) {
       _logWithSeparator(
-          'Error durante la descarga o instalación de la APK: $e');
+        'Error durante la descarga o instalación de la APK: $e',
+      );
       rethrow;
     }
   }
@@ -104,27 +114,22 @@ class ServiceCheckVersion {
   Future<void> installDownloadedUpdate(String savePath) async {
     await InstallPlugin.install(savePath);
     if (await _isVersionUpdated()) {
-      await limpiarDatosDeInstalacion(); // Limpiar solo si la instalación fue exitosa
+      await limpiarDatosDeInstalacion();
     }
   }
 
   Future<bool> _isVersionUpdated() async {
-    // Lógica para verificar si la versión instalada es la esperada
-    // Se puede comparar la versión instalada actual con la esperada desde Firebase
-    // Aquí simplemente devuelvo true para fines de ejemplo, pero deberías añadir la lógica necesaria
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     return packageInfo.version == remoteVersion;
   }
 
   Future<void> limpiarDatosDeInstalacion() async {
-    final savePath = await UtilsAPK.obtenerRutaGuardado('app_update.apk');
-    await UtilsAPK.eliminarArchivo(savePath);
-    await PrefsUtils.limpiarEstadoDescarga();
+    await TransformacionesAPK.deleteExistingApk();
+    await TransformacionesAPK.clearApkDownloadState();
     _logWithSeparator('Datos de instalación limpiados.');
   }
 
   Future<bool> isUpdateDownloaded() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('update_downloaded') ?? false;
+    return await TransformacionesAPK.isApkUpdateDownloaded();
   }
 }

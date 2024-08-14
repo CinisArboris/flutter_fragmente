@@ -42,6 +42,18 @@ class TransformacionesAPK {
     _logWithSeparator('Estado de descarga de la APK guardado: $value');
   }
 
+  /// Guarda el estado de la flag "isDownloading"
+  static Future<void> setDownloading(bool value) async {
+    await SharedPreferencesAPK.setDownloading(value);
+    _logWithSeparator('Flag "isDownloading" guardada con valor: $value');
+  }
+
+  /// Guarda el estado de la flag "isInstalling"
+  static Future<void> setInstalling(bool value) async {
+    await SharedPreferencesAPK.setInstalling(value);
+    _logWithSeparator('Flag "isInstalling" guardada con valor: $value');
+  }
+
   // Getters
 
   /// Obtiene la URL del APK guardada en SharedPreferences
@@ -79,6 +91,22 @@ class TransformacionesAPK {
     _logWithSeparator(
         'Estado de descarga de la APK: ${updateDownloaded ? "Descargada" : "No descargada"}');
     return updateDownloaded;
+  }
+
+  /// Obtiene el estado de la flag "isDownloading"
+  static Future<bool> isDownloading() async {
+    final isDownloading = await SharedPreferencesAPK.isDownloading();
+    _logWithSeparator(
+        'Estado de descarga actual: ${isDownloading ? "Descargando" : "No descargando"}');
+    return isDownloading;
+  }
+
+  /// Obtiene el estado de la flag "isInstalling"
+  static Future<bool> isInstalling() async {
+    final isInstalling = await SharedPreferencesAPK.isInstalling();
+    _logWithSeparator(
+        'Estado de instalación actual: ${isInstalling ? "Instalando" : "No instalando"}');
+    return isInstalling;
   }
 
   // Clear methods

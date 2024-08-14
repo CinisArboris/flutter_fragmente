@@ -1,9 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:install_plugin/install_plugin.dart';
-import '../utils_services/utils_apk.dart';
-import '../utils_services/prefs_utils.dart';
-import '../utils_services/flags_utils.dart';
+import '../utils_services/transformaciones_apk.dart';
 
 class ServicioGestorDeActualizacion {
   final String apkUrl;
@@ -15,7 +13,8 @@ class ServicioGestorDeActualizacion {
     Function(double)? onBytesDownloaded,
   }) async {
     // Verificar si ya se está descargando o instalando
-    if (await FlagsUtils.isDownloading() || await FlagsUtils.isInstalling()) {
+    if (await TransformacionesAPK.isDownloading() ||
+        await TransformacionesAPK.isInstalling()) {
       debugPrint(
         ':::: Servicio Gestor Actualizacion - Operación de descarga o instalación ya en curso.',
       );
@@ -23,8 +22,11 @@ class ServicioGestorDeActualizacion {
     }
 
     try {
-      await FlagsUtils.setDownloading(true); // Marcar como en curso la descarga
-      var savePath = await UtilsAPK.obtenerRutaGuardado('app_update.apk');
+      // Marcar como en curso la descarga
+      await TransformacionesAPK.setDownloading(true);
+
+      // Obtener la ruta de guardado para el archivo APK
+      var savePath = await TransformacionesAPK.getApkSavePath();
 
       debugPrint(
         ':::: Servicio Gestor Actualizacion - Iniciando la descarga de la actualización desde $apkUrl...',
@@ -36,34 +38,31 @@ class ServicioGestorDeActualizacion {
         apkUrl,
         savePath,
         onReceiveProgress: (count, total) {
-          lastPrintMB = _manejarProgresoSinTotal(
+          lastPrintMB = _handleProgressWithoutTotal(
               count, lastPrintMB, onProgress, onBytesDownloaded);
         },
       );
 
-      // Guardar en SharedPreferences que la actualización ha sido descargada y la URL
-      await PrefsUtils.guardarEstadoDescarga(true, apkUrl);
+      // Guardar en TransformacionesAPK que la actualización ha sido descargada
+      await TransformacionesAPK.setApkUpdateDownloaded(true);
 
       debugPrint(
         ':::: Servicio Gestor Actualizacion - Descarga completa. Iniciando instalación...',
       );
-      await FlagsUtils.setDownloading(false); // Descargar completada
+      await TransformacionesAPK.setDownloading(false); // Descargar completada
 
       // Verificar si el archivo realmente existe antes de intentar la instalación
-      final fileExists = await UtilsAPK.verificarArchivo(savePath);
+      final fileExists = await TransformacionesAPK.checkIfApkExists();
       if (fileExists) {
-        await FlagsUtils.setInstalling(
+        await TransformacionesAPK.setInstalling(
             true); // Marcar como en curso la instalación
         await InstallPlugin.install(savePath);
         debugPrint(
           ':::: Servicio Gestor Actualizacion - Instalación iniciada con éxito.',
         );
 
-        // Puedes limpiar los datos de instalación aquí si la instalación fue exitosa
-        // await limpiarDatosDeInstalacion(); // Solo si es seguro borrar los archivos
-
         // Marcar instalación como completada
-        await FlagsUtils.setInstalling(false);
+        await TransformacionesAPK.setInstalling(false);
       } else {
         debugPrint(
           ':::: Servicio Gestor Actualizacion - Error: El archivo APK no se encontró en la ruta especificada.',
@@ -73,13 +72,13 @@ class ServicioGestorDeActualizacion {
       debugPrint(
         ':::: Servicio Gestor Actualizacion - Error durante la descarga o instalación de la APK: $e',
       );
-      await FlagsUtils.setDownloading(false);
-      await FlagsUtils.setInstalling(false);
+      await TransformacionesAPK.setDownloading(false);
+      await TransformacionesAPK.setInstalling(false);
       rethrow;
     }
   }
 
-  double _manejarProgresoSinTotal(
+  double _handleProgressWithoutTotal(
     int count,
     double lastPrintMB,
     Function(double)? onProgress,
@@ -103,13 +102,9 @@ class ServicioGestorDeActualizacion {
     return lastPrintMB;
   }
 
-  // Este método no se llama automáticamente ahora, solo cuando estés seguro de que
-  // la instalación fue completada y es seguro limpiar
   Future<void> limpiarDatosDeInstalacion() async {
-    final savePath = await UtilsAPK.obtenerRutaGuardado('app_update.apk');
-    await UtilsAPK.eliminarArchivo(savePath);
-    await PrefsUtils.limpiarEstadoDescarga();
-    await FlagsUtils.clearFlags();
+    await TransformacionesAPK.deleteExistingApk();
+    await TransformacionesAPK.clearApkDownloadState();
     debugPrint(
       ':::: Servicio Gestor Actualizacion - Datos de instalación limpiados.',
     );
