@@ -4,6 +4,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:install_plugin/install_plugin.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils_services/file_utils.dart';
+import '../utils_services/prefs_utils.dart';
 
 class ServiceCheckVersion {
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
@@ -62,6 +65,7 @@ class ServiceCheckVersion {
         _logWithSeparator('Se requiere actualización.');
       } else {
         _logWithSeparator('No se requiere actualización.');
+        await limpiarDatosDeInstalacion(); // Limpia datos si no se necesita actualización
       }
     } catch (e) {
       _logWithSeparator('Error durante la verificación de versión: $e');
@@ -84,17 +88,43 @@ class ServiceCheckVersion {
           'Iniciando la descarga de la APK desde $remoteApkUrl...');
       await Dio().download(remoteApkUrl, savePath,
           onReceiveProgress: (count, total) {
-        debugPrint(
-            ':::: Progreso de descarga: ${(count / total * 100).toStringAsFixed(0)}%');
+        _logWithSeparator(
+            'Progreso de descarga: ${(count / total * 100).toStringAsFixed(0)}%');
       });
 
       _logWithSeparator('Descarga completa. Iniciando instalación...');
-      await InstallPlugin.install(savePath);
-      _logWithSeparator('Instalación iniciada con éxito.');
+      await installDownloadedUpdate(savePath);
     } catch (e) {
       _logWithSeparator(
           'Error durante la descarga o instalación de la APK: $e');
       rethrow;
     }
+  }
+
+  Future<void> installDownloadedUpdate(String savePath) async {
+    await InstallPlugin.install(savePath);
+    if (await _isVersionUpdated()) {
+      await limpiarDatosDeInstalacion(); // Limpiar solo si la instalación fue exitosa
+    }
+  }
+
+  Future<bool> _isVersionUpdated() async {
+    // Lógica para verificar si la versión instalada es la esperada
+    // Se puede comparar la versión instalada actual con la esperada desde Firebase
+    // Aquí simplemente devuelvo true para fines de ejemplo, pero deberías añadir la lógica necesaria
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    return packageInfo.version == remoteVersion;
+  }
+
+  Future<void> limpiarDatosDeInstalacion() async {
+    final savePath = await FileUtils.obtenerRutaGuardado('app_update.apk');
+    await FileUtils.eliminarArchivo(savePath);
+    await PrefsUtils.limpiarEstadoDescarga();
+    _logWithSeparator('Datos de instalación limpiados.');
+  }
+
+  Future<bool> isUpdateDownloaded() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('update_downloaded') ?? false;
   }
 }

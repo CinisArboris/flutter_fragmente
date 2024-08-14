@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:install_plugin/install_plugin.dart';
-import 'file_utils.dart';
-import 'prefs_utils.dart';
-import 'flags_utils.dart';
+import '../utils_services/file_utils.dart';
+import '../utils_services/prefs_utils.dart';
+import '../utils_services/flags_utils.dart';
 
 class ServicioGestorDeActualizacion {
   final String apkUrl;
