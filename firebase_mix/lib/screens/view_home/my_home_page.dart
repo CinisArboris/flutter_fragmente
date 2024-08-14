@@ -1,11 +1,10 @@
 import 'package:firebase_mix/screens/view_default_test.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_mix/screens/view_update_apk.dart';
-import 'package:firebase_mix/services/service_check_version.dart';
+import 'package:firebase_mix/services/handler_view.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_mix/widgets/w_info_card.dart';
 import 'package:firebase_mix/widgets/apk_update/w_apk_update_alert_dialog.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'update_manager.dart';
 
 class MyHomePage extends StatefulWidget {
   final FirebaseAnalytics analytics;
@@ -20,13 +19,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
-  final ServiceCheckVersion _versionCheckService = ServiceCheckVersion();
-  final UpdateManager _updateManager = UpdateManager();
-  String localVersion = '';
-  String remoteDetail = '';
-  String remoteVersion = '';
-  String remoteApkUrl = '';
-  bool isUpdateAvailable = false;
+  final HandlerView _updateHandler = HandlerView();
   bool _isDialogShown = false;
 
   @override
@@ -36,51 +29,22 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _checkForUpdates() async {
-    debugPrint('::::Iniciando verificación de actualizaciones...');
-    await _versionCheckService.checkVersion();
-    _updateVersionInfo();
-    if (!isUpdateAvailable) {
-      debugPrint('::::No se requiere actualización. Limpiando archivos...');
-      await _updateManager.limpiarDatosDeInstalacion(remoteApkUrl);
-    } else if (isUpdateAvailable && !_isDialogShown) {
+    await _updateHandler.checkForUpdates();
+    setState(() {});
+
+    if (!_updateHandler.isUpdateAvailable) {
+      await _updateHandler.cleanUp();
+    } else if (_updateHandler.isUpdateAvailable && !_isDialogShown) {
       _handleUpdateDialog();
     }
   }
 
-  void _updateVersionInfo() {
-    setState(() {
-      localVersion = _versionCheckService.localVersion;
-      remoteDetail = _versionCheckService.remoteDetail;
-      remoteVersion = _versionCheckService.remoteVersion;
-      remoteApkUrl = _versionCheckService.remoteApkUrl;
-      isUpdateAvailable = _versionCheckService.isUpdateAvailable;
-    });
-    debugPrint('::::Información de la versión actualizada:');
-    debugPrint('::::Versión local: $localVersion');
-    debugPrint('::::Versión remota: $remoteVersion');
-    debugPrint('::::Detalle de la versión remota: $remoteDetail');
-    debugPrint('::::URL de descarga de la APK: $remoteApkUrl');
-  }
-
   void _handleUpdateDialog() async {
-    final bool updateDownloaded =
-        await _updateManager.isUpdateDownloaded(remoteApkUrl);
-
-    if (updateDownloaded) {
-      debugPrint('::::Actualización ya descargada. Iniciando instalación.');
-      _installDownloadedUpdate();
-    } else if (isUpdateAvailable && !_isDialogShown) {
-      debugPrint('::::Mostrando diálogo de actualización...');
-      _isDialogShown = true;
-      _showUpdateDialog(); // Aseguramos que se muestra el diálogo
+    if (await _updateHandler.isUpdateDownloaded()) {
+      await _updateHandler.installUpdate();
     } else {
-      debugPrint(
-          '::::Error en la actualización, manteniendo archivos para reintento.');
+      _showUpdateDialog();
     }
-  }
-
-  void _installDownloadedUpdate() async {
-    await _updateManager.installDownloadedUpdate(remoteApkUrl);
   }
 
   void _showUpdateDialog() {
@@ -89,41 +53,36 @@ class MyHomePageState extends State<MyHomePage> {
       builder: (context) => WApkUpdateAlertDialog(
         onUpdate: _onUpdate,
         onCancel: _onCancel,
-        versionDetail: remoteDetail,
-        mobileVersion: remoteVersion,
-        apkUrl: remoteApkUrl,
+        versionDetail: _updateHandler.remoteDetail,
+        mobileVersion: _updateHandler.remoteVersion,
+        apkUrl: _updateHandler.remoteApkUrl,
       ),
     ).then((_) {
-      debugPrint('::::Diálogo de actualización cerrado.');
       _isDialogShown = false;
     });
+    _isDialogShown = true;
   }
 
   void _onUpdate() {
-    debugPrint('::::Usuario ha decidido actualizar.');
     Navigator.of(context).pop();
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ViewUpdateApk(apkUrl: remoteApkUrl),
+        builder: (context) =>
+            ViewUpdateApk(apkUrl: _updateHandler.remoteApkUrl),
       ),
     );
   }
 
   void _onCancel() {
-    debugPrint('::::Usuario ha cancelado la actualización.');
     Navigator.of(context).pop();
   }
 
   void _recheckVersionAndNavigate() async {
-    debugPrint('::::Re-verificando versiones antes de la navegación...');
-    await _versionCheckService.checkVersion();
-    if (_versionCheckService.isUpdateAvailable) {
-      debugPrint('::::Actualización disponible después de la re-verificación.');
+    await _updateHandler.checkForUpdates();
+    if (_updateHandler.isUpdateAvailable) {
       _showUpdateDialog();
     } else {
-      debugPrint(
-          '::::No hay actualizaciones. Navegando a la página de prueba.');
       _navigateToDefaultTestPage();
     }
   }
@@ -156,13 +115,14 @@ class MyHomePageState extends State<MyHomePage> {
             subtitle: 'Modulos disponibles : 15',
           ),
           const SizedBox(height: 20),
-          _buildVersionInfoCard(
-              'Versión instalada en el dispositivo', localVersion),
-          const SizedBox(height: 20),
-          _buildVersionInfoCard('Descripción de la APK', remoteDetail),
+          _buildVersionInfoCard('Versión instalada en el dispositivo',
+              _updateHandler.localVersion),
           const SizedBox(height: 20),
           _buildVersionInfoCard(
-              'Versión disponible en el servidor', remoteVersion),
+              'Descripción de la APK', _updateHandler.remoteDetail),
+          const SizedBox(height: 20),
+          _buildVersionInfoCard('Versión disponible en el servidor',
+              _updateHandler.remoteVersion),
           const SizedBox(height: 20),
           _buildActionButton(),
         ],
@@ -180,7 +140,7 @@ class MyHomePageState extends State<MyHomePage> {
   Widget _buildActionButton() {
     return Column(
       children: [
-        if (isUpdateAvailable) ...[
+        if (_updateHandler.isUpdateAvailable) ...[
           _buildUpdateButton(),
           const SizedBox(height: 10),
         ] else ...[
