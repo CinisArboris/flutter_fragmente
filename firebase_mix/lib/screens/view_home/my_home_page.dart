@@ -1,10 +1,9 @@
-import 'package:firebase_mix/screens/view_default_test.dart';
-import 'package:firebase_mix/screens/view_home/part_body.dart';
+import 'package:firebase_mix/screens/view_home/update_body.dart';
 import 'package:firebase_mix/screens/view_update_apk.dart';
 import 'package:firebase_mix/services/handler_view.dart';
+import 'package:firebase_mix/widgets/apk_update/w_apk_update_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'part_dialog.dart';
 
 class MyHomePage extends StatefulWidget {
   final FirebaseAnalytics analytics;
@@ -20,7 +19,6 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   final HandlerView _updateHandler = HandlerView();
-  final UpdateDialogHandler _dialogHandler = UpdateDialogHandler();
   bool _isDialogShown = false;
 
   @override
@@ -33,22 +31,33 @@ class MyHomePageState extends State<MyHomePage> {
   Future<void> _checkForUpdates() async {
     await _updateHandler.checkForUpdates();
 
-    if (!mounted)
-      return; // Verifica si el widget sigue montado antes de usar el context
+    if (!mounted) return;
     setState(() {});
 
+    debugPrint(
+        'Verificando si se requiere actualización y si el diálogo ya se mostró.');
     if (!_updateHandler.isUpdateAvailable) {
+      debugPrint('No se requiere actualización. Limpiando...');
       await _updateHandler.cleanUp();
     } else if (_updateHandler.isUpdateAvailable && !_isDialogShown) {
-      if (!mounted) return; // Verifica nuevamente antes de mostrar el diálogo
-      _dialogHandler.handleUpdateDialog(
-        context: context,
-        updateHandler: _updateHandler,
-        onUpdate: _onUpdate,
-        onCancel: _onCancel,
-      );
+      debugPrint('Actualización disponible. Mostrando diálogo...');
+      if (!mounted) return;
+      _showUpdateDialog();
       _isDialogShown = true;
     }
+  }
+
+  void _showUpdateDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => WApkUpdateAlertDialog(
+        onUpdate: _onUpdate,
+        onCancel: _onCancel,
+        versionDetail: _updateHandler.remoteDetail,
+        mobileVersion: _updateHandler.remoteVersion,
+        apkUrl: _updateHandler.remoteApkUrl,
+      ),
+    );
   }
 
   void _onUpdate() {
@@ -70,31 +79,6 @@ class MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _recheckVersionAndNavigate() async {
-    await _updateHandler.checkForUpdates();
-
-    if (!mounted) return;
-    if (_updateHandler.isUpdateAvailable) {
-      _dialogHandler.showUpdateDialog(
-        context: context,
-        updateHandler: _updateHandler,
-        onUpdate: _onUpdate,
-        onCancel: _onCancel,
-      );
-    } else {
-      _navigateToDefaultTestPage();
-    }
-  }
-
-  void _navigateToDefaultTestPage() {
-    if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ViewDefaultTest()),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,7 +87,6 @@ class MyHomePageState extends State<MyHomePage> {
       ),
       body: UpdateBody(
         updateHandler: _updateHandler,
-        dialogHandler: _dialogHandler,
       ),
     );
   }
