@@ -19,8 +19,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.1+2
 
 environment:
-  sdk: '>=3.4.4 <4.0.0' # home
-  # sdk: '>=3.0.0 <4.0.0' # work
+  # sdk: '>=3.4.4 <4.0.0' # home
+  sdk: '>=3.0.0 <4.0.0' # work
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -44,7 +44,7 @@ dependencies:
   install_plugin: ^2.1.0
   path_provider: ^2.1.4
   dio: ^5.5.0+1
-  shared_preferences: ^2.3.1
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:
