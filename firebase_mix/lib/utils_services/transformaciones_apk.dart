@@ -1,4 +1,4 @@
-import 'package:firebase_mix/services/service_check_version.dart';
+import 'package:firebase_mix/utils_services/shared_preferences_apk.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -43,6 +43,14 @@ class TransformacionesAPK {
     String filePath = "${appDocDir.path}/$fileName";
     _logWithSeparator('Ruta de guardado obtenida: $filePath');
     return filePath;
+  }
+
+  /// Verifica si la actualización de la APK ya se ha descargado
+  static Future<bool> isApkUpdateDownloaded() async {
+    final updateDownloaded = await SharedPreferencesAPK.isApkUpdateDownloaded();
+    _logWithSeparator(
+        'Estado de descarga de la APK: ${updateDownloaded ? "Descargada" : "No descargada"}');
+    return updateDownloaded;
   }
 
   // Transformaciones

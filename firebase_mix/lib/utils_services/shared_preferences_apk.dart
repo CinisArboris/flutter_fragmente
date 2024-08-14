@@ -14,14 +14,46 @@ class SharedPreferencesAPK {
     debugPrint('----------------------------------------\n');
   }
 
-  // Guardar estado de la flag "isDownloading"
+  // Setters
+
+  /// Guarda el estado de la flag "isDownloading"
   static Future<void> setDownloading(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_isDownloadingKey, value);
     _logWithSeparator('Flag "isDownloading" guardada con valor: $value');
   }
 
-  // Obtener estado de la flag "isDownloading"
+  /// Guarda el estado de la flag "isInstalling"
+  static Future<void> setInstalling(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_isInstallingKey, value);
+    _logWithSeparator('Flag "isInstalling" guardada con valor: $value');
+  }
+
+  /// Guarda la URL de la APK
+  static Future<void> setApkUrl(String url) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_apkUrlKey, url);
+    _logWithSeparator('URL de la APK guardada: $url');
+  }
+
+  /// Guarda el nombre del archivo APK
+  static Future<void> setApkFileName(String fileName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_apkFileNameKey, fileName);
+    _logWithSeparator('Nombre del archivo APK guardado: $fileName');
+  }
+
+  /// Guarda el estado de la descarga de la APK
+  static Future<void> setApkUpdateDownloaded(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_updateDownloadedKey, value);
+    _logWithSeparator('Estado de descarga de APK guardado: $value');
+  }
+
+  // Getters
+
+  /// Obtiene el estado de la flag "isDownloading"
   static Future<bool> isDownloading() async {
     final prefs = await SharedPreferences.getInstance();
     bool value = prefs.getBool(_isDownloadingKey) ?? false;
@@ -29,14 +61,7 @@ class SharedPreferencesAPK {
     return value;
   }
 
-  // Guardar estado de la flag "isInstalling"
-  static Future<void> setInstalling(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_isInstallingKey, value);
-    _logWithSeparator('Flag "isInstalling" guardada con valor: $value');
-  }
-
-  // Obtener estado de la flag "isInstalling"
+  /// Obtiene el estado de la flag "isInstalling"
   static Future<bool> isInstalling() async {
     final prefs = await SharedPreferences.getInstance();
     bool value = prefs.getBool(_isInstallingKey) ?? false;
@@ -44,14 +69,7 @@ class SharedPreferencesAPK {
     return value;
   }
 
-  // Guardar la URL de la APK
-  static Future<void> setApkUrl(String url) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_apkUrlKey, url);
-    _logWithSeparator('URL de la APK guardada: $url');
-  }
-
-  // Obtener la URL de la APK
+  /// Obtiene la URL de la APK
   static Future<String?> getApkUrl() async {
     final prefs = await SharedPreferences.getInstance();
     String? url = prefs.getString(_apkUrlKey);
@@ -59,14 +77,7 @@ class SharedPreferencesAPK {
     return url;
   }
 
-  // Guardar el nombre del archivo APK
-  static Future<void> setApkFileName(String fileName) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_apkFileNameKey, fileName);
-    _logWithSeparator('Nombre del archivo APK guardado: $fileName');
-  }
-
-  // Obtener el nombre del archivo APK
+  /// Obtiene el nombre del archivo APK
   static Future<String?> getApkFileName() async {
     final prefs = await SharedPreferences.getInstance();
     String? fileName = prefs.getString(_apkFileNameKey);
@@ -74,30 +85,33 @@ class SharedPreferencesAPK {
     return fileName;
   }
 
-  // Guardar estado de la descarga y la URL de la APK
-  static Future<void> guardarEstadoDescarga(bool estado, String url) async {
+  /// Obtiene el estado de la descarga de la APK
+  static Future<bool> isApkUpdateDownloaded() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_updateDownloadedKey, estado);
-    await prefs.setString(_apkUrlKey, url);
-    _logWithSeparator('Estado de descarga guardado: $estado, URL: $url');
+    bool value = prefs.getBool(_updateDownloadedKey) ?? false;
+    _logWithSeparator('Estado de descarga de APK obtenido con valor: $value');
+    return value;
   }
 
-  // Limpiar estado de la descarga y las flags
-  static Future<void> limpiarEstadoDescarga() async {
+  // Clear methods
+
+  /// Limpia el estado de la descarga de la APK y las flags relacionadas
+  static Future<void> clearApkDownloadState() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_updateDownloadedKey);
     await prefs.remove(_apkUrlKey);
-    _logWithSeparator('Estado de instalación limpiado.');
+    await prefs.remove(_apkFileNameKey);
+    _logWithSeparator('Estado de instalación y flags relacionadas limpiadas.');
   }
 
-  // Limpiar todas las flags y datos relacionados
-  static Future<void> clearFlags() async {
+  /// Limpia todas las flags y datos relacionados
+  static Future<void> clearAllFlags() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_isDownloadingKey);
     await prefs.remove(_isInstallingKey);
     await prefs.remove(_apkUrlKey);
     await prefs.remove(_apkFileNameKey);
-    _logWithSeparator(
-        'Flags "isDownloading", "isInstalling", "apkUrl" y "apkFileName" limpiadas.');
+    await prefs.remove(_updateDownloadedKey);
+    _logWithSeparator('Todas las flags y datos relacionados limpiados.');
   }
 }
