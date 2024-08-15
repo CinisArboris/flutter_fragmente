@@ -42,19 +42,19 @@ class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
 
     if (updateDownloaded && fileExists) {
       _logWithSeparator(
-          'Actualización ya descargada y archivo encontrado, procediendo a instalación.');
+          'Caso 2: Actualización ya descargada y archivo encontrado, procediendo a instalación.');
       widget.onUpdate(); // Proceder directamente a la instalación
+    } else if (widget.apkUrl.isNotEmpty) {
+      _logWithSeparator(
+          'Caso 1: Archivo no encontrado o no descargado, iniciando nueva descarga.');
+      _startDownloadAgain();
     } else {
       _logWithSeparator(
-          'Archivo no encontrado o no se ha descargado la actualización, iniciando descarga.');
-      _startDownloadAgain();
+          'No se pudo encontrar el archivo y no hay una URL válida para descargar.');
     }
   }
 
   Future<void> _startDownloadAgain() async {
-    // Eliminar cualquier archivo existente antes de iniciar una nueva descarga
-    await TransformacionesAPK.deleteExistingApk();
-
     if (mounted) {
       Navigator.of(context).pop();
       Navigator.push(

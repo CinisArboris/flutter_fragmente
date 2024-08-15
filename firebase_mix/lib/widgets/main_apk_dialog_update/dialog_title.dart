@@ -19,5 +19,5 @@ Widget buildDialogTitle() {
 }
 
 void _logWithSeparator(String message) {
-  debugPrint(':::: UpdateDialog - $message');
+  // debugPrint(':::: UpdateDialog - $message');
 }

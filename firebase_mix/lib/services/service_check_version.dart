@@ -71,8 +71,6 @@ class ServiceCheckVersion {
         await TransformacionesAPK.setApkUpdateDownloaded(false);
       } else {
         _logWithSeparator('No se requiere actualización.');
-        // Limpia datos si no se necesita actualización
-        await limpiarDatosDeInstalacion();
       }
     } catch (e) {
       _logWithSeparator('Error durante la verificación de versión: $e');
@@ -114,7 +112,8 @@ class ServiceCheckVersion {
   Future<void> installDownloadedUpdate(String savePath) async {
     await InstallPlugin.install(savePath);
     if (await _isVersionUpdated()) {
-      await limpiarDatosDeInstalacion();
+      // No se limpia la instalación automáticamente
+      _logWithSeparator('Instalación completada con éxito.');
     }
   }
 
@@ -123,10 +122,10 @@ class ServiceCheckVersion {
     return packageInfo.version == remoteVersion;
   }
 
+  // No se incluye la eliminación automática del APK
   Future<void> limpiarDatosDeInstalacion() async {
-    await TransformacionesAPK.deleteExistingApk();
     await TransformacionesAPK.clearApkDownloadState();
-    _logWithSeparator('Datos de instalación limpiados.');
+    _logWithSeparator('Datos de instalación limpiados (sin eliminar APK).');
   }
 
   Future<bool> isUpdateDownloaded() async {

@@ -11,9 +11,9 @@ class SharedPreferencesAPK {
   static const String _apkDetailKey = 'apk_detail';
 
   static void _logWithSeparator(String message) {
-    debugPrint('\n----------------------------------------');
-    debugPrint(':::: SharedPreferencesAPK - $message');
-    debugPrint('----------------------------------------\n');
+    // debugPrint('\n----------------------------------------');
+    // debugPrint(':::: SharedPreferencesAPK - $message');
+    // debugPrint('----------------------------------------\n');
   }
 
   // Setters

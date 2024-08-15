@@ -46,7 +46,7 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
     });
 
     try {
-      // Iniciar el proceso de descarga e instalación
+      // Iniciar el proceso de descarga
       await installer?.descargarEInstalarActualizacion(
         onProgress: (progress) {
           // Actualizar la UI con el progreso de la descarga si es necesario
@@ -65,6 +65,10 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
           isDownloading = false;
           isInstalling = true;
         });
+
+        // Iniciar el proceso de instalación directamente
+        final savePath = await TransformacionesAPK.getApkSavePath();
+        await installer?.installDownloadedUpdate(savePath);
       } else {
         // Si el archivo no se encuentra después de la descarga, mostramos un error
         setState(() {
@@ -80,9 +84,6 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
         errorMessage =
             'Error durante la descarga o instalación de la APK: $error';
       });
-
-      // Limpiar datos en caso de error
-      await installer?.limpiarDatosDeInstalacion();
     }
   }
 

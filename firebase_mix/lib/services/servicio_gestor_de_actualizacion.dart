@@ -102,11 +102,23 @@ class ServicioGestorDeActualizacion {
     return lastPrintMB;
   }
 
-  Future<void> limpiarDatosDeInstalacion() async {
-    await TransformacionesAPK.deleteExistingApk();
-    await TransformacionesAPK.clearApkDownloadState();
-    debugPrint(
-      ':::: Servicio Gestor Actualizacion - Datos de instalación limpiados.',
-    );
+  Future<void> installDownloadedUpdate(String savePath) async {
+    try {
+      // Marcar como en curso la instalación
+      await TransformacionesAPK.setInstalling(true);
+
+      // Iniciar la instalación del APK
+      await InstallPlugin.install(savePath);
+
+      debugPrint(
+          ':::: Servicio Gestor Actualizacion - Instalación iniciada con éxito.');
+    } catch (e) {
+      debugPrint(
+          ':::: Servicio Gestor Actualizacion - Error durante la instalación del APK: $e');
+      rethrow; // Re-lanzar el error para que pueda ser manejado externamente si es necesario
+    } finally {
+      // Marcar la instalación como completada (esto se realiza sin importar si hay un error)
+      await TransformacionesAPK.setInstalling(false);
+    }
   }
 }

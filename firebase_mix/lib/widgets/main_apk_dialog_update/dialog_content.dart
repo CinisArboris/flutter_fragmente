@@ -61,5 +61,5 @@ Widget _buildVersionDetails(String versionDetail) {
 }
 
 void _logWithSeparator(String message) {
-  debugPrint(':::: UpdateDialog - $message');
+  // debugPrint(':::: UpdateDialog - $message');
 }
