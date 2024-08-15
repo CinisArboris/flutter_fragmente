@@ -29,18 +29,20 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _checkForUpdates() async {
+    _logWithSeparator('Iniciando verificación de actualizaciones...');
     await _updateHandler.checkForUpdates();
 
     if (!mounted) return;
     setState(() {});
 
-    debugPrint(
+    _logWithSeparator(
         'Verificando si se requiere actualización y si el diálogo ya se mostró.');
     if (!_updateHandler.isUpdateAvailable) {
-      debugPrint('No se requiere actualización. Limpiando...');
+      _logWithSeparator(
+          'No se requiere actualización. Procediendo a limpieza...');
       await _updateHandler.cleanUp();
     } else if (_updateHandler.isUpdateAvailable && !_isDialogShown) {
-      debugPrint('Actualización disponible. Mostrando diálogo...');
+      _logWithSeparator('Actualización disponible. Mostrando diálogo...');
       if (!mounted) return;
       _showUpdateDialog();
       _isDialogShown = true;
@@ -48,6 +50,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _showUpdateDialog() {
+    _logWithSeparator('Mostrando diálogo de actualización...');
     showDialog(
       context: context,
       builder: (context) => WApkUpdateAlertDialog(
@@ -61,6 +64,8 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _onUpdate() {
+    _logWithSeparator(
+        'Botón "Actualizar" presionado. Redirigiendo a la pantalla de descarga...');
     if (mounted) {
       Navigator.of(context).pop();
       Navigator.push(
@@ -74,9 +79,16 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _onCancel() {
+    _logWithSeparator('Botón "Cancelar" presionado. Cerrando diálogo...');
     if (mounted) {
       Navigator.of(context).pop();
     }
+  }
+
+  void _logWithSeparator(String message) {
+    debugPrint('\n================== MyHomePage ==================');
+    debugPrint(message);
+    debugPrint('================================================\n');
   }
 
   @override

@@ -26,9 +26,9 @@ class WApkUpdateAlertDialog extends StatefulWidget {
 
 class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
   void _logWithSeparator(String message) {
-    debugPrint('\n-----------------------------');
+    debugPrint('\n================================================');
     debugPrint(':::: UpdateDialog - $message');
-    debugPrint('-----------------------------\n');
+    debugPrint('================================================\n');
   }
 
   Future<void> _checkForDownloadedUpdate() async {
