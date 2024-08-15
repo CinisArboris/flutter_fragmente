@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_mix/services/servicio_gestor_de_actualizacion.dart';
 import 'package:firebase_mix/utils_services/transformaciones_apk.dart';
@@ -79,11 +80,21 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
       }
     } catch (error) {
       // Capturamos cualquier error durante la descarga e instalación
-      setState(() {
+      if (error is DioException) {
+        // Especificar el tipo de error y el código de estado
+        setState(() {
+          isDownloading = false;
+          String errorType = error.type.toString();
+          String? statusCode = error.response?.statusCode?.toString();
+          errorMessage = 'Dio Error: $errorType, Código de estado: $statusCode';
+        });
+      } else {
         isDownloading = false;
-        errorMessage =
-            'Error durante la descarga o instalación de la APK: $error';
-      });
+        setState(() {
+          errorMessage =
+              'Error desconocido durante la descarga/instalación: $error';
+        });
+      }
     }
   }
 
