@@ -104,21 +104,37 @@ class ServicioGestorDeActualizacion {
 
   Future<void> installDownloadedUpdate(String savePath) async {
     try {
+      // Verificar si el archivo realmente existe antes de intentar la instalación
+      final fileExists = await TransformacionesAPK.checkIfApkExists();
+      if (!fileExists) {
+        debugPrint(
+            ':::: Servicio Gestor Actualizacion - Error: El archivo APK no se encontró en la ruta: $savePath');
+        return;
+      }
+
       // Marcar como en curso la instalación
       await TransformacionesAPK.setInstalling(true);
+      debugPrint(':::: Servicio Gestor - Iniciando instalación...');
+      debugPrint(':::: $savePath');
 
       // Iniciar la instalación del APK
-      await InstallPlugin.install(savePath);
-
-      debugPrint(
-          ':::: Servicio Gestor Actualizacion - Instalación iniciada con éxito.');
+      await InstallPlugin.install(savePath).then((result) {
+        debugPrint(
+            ':::: Servicio Gestor Actualizacion - Instalación completada con resultado: $result');
+      }).catchError((error) {
+        debugPrint(
+            ':::: Servicio Gestor Actualizacion - Error durante la instalación del APK: $error');
+        throw error;
+      });
     } catch (e) {
       debugPrint(
-          ':::: Servicio Gestor Actualizacion - Error durante la instalación del APK: $e');
+          ':::: Servicio Gestor Actualizacion - Excepción capturada durante la instalación: $e');
       rethrow; // Re-lanzar el error para que pueda ser manejado externamente si es necesario
     } finally {
       // Marcar la instalación como completada (esto se realiza sin importar si hay un error)
       await TransformacionesAPK.setInstalling(false);
+      debugPrint(
+          ':::: Servicio Gestor Actualizacion - Proceso de instalación finalizado.');
     }
   }
 }

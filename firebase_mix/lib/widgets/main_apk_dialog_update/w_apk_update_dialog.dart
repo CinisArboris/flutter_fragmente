@@ -59,14 +59,14 @@ class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
   }
 
   Future<void> _startInstallation() async {
+    if (mounted) {
+      Navigator.of(context).pop();
+      // Navigator.of(context).pop();
+    }
+
     final savePath = await TransformacionesAPK.getApkSavePath();
     final installer = ServicioGestorDeActualizacion(widget.apkUrl);
     await installer.installDownloadedUpdate(savePath);
-
-    if (mounted) {
-      Navigator.of(context)
-          .pop(); // Cerrar el diálogo después de la instalación
-    }
   }
 
   Future<void> _startDownloadAgain() async {
