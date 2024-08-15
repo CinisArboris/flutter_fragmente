@@ -32,8 +32,6 @@ class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
   }
 
   Future<void> _checkForDownloadedUpdate() async {
-    _logWithSeparator('Verificando estado de la APK descargada...');
-
     // Verificar si la actualización ya se ha descargado
     bool updateDownloaded = await TransformacionesAPK.isApkUpdateDownloaded();
 
@@ -46,13 +44,20 @@ class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
       _logWithSeparator(
           'Caso 1: APK descargado y archivo existe. Procediendo a instalación.');
       widget.onUpdate(); // Proceder directamente a la instalación
-    } else if (widget.apkUrl.isNotEmpty) {
+    } else if (!fileExists && widget.apkUrl.isNotEmpty) {
       _logWithSeparator(
           'Caso 2: APK no descargado o archivo no encontrado. Iniciando descarga.');
       _startDownloadAgain();
+    } else if (fileExists && !updateDownloaded) {
+      _logWithSeparator(
+          'Caso 3: Archivo encontrado pero marcado como no descargado. Procediendo a instalación.');
+      // En este caso, el archivo está presente, pero el flag indica que no está descargado.
+      // Esto puede ocurrir si el proceso fue interrumpido. Reajustamos el flag y procedemos a la instalación.
+      await TransformacionesAPK.setApkUpdateDownloaded(true);
+      widget.onUpdate();
     } else {
       _logWithSeparator(
-          'Caso 3: No se pudo encontrar el archivo y no hay una URL válida para descargar.');
+          'No se pudo encontrar el archivo y no hay una URL válida para descargar.');
       // Aquí podrías manejar el caso de error, mostrar un mensaje, etc.
     }
   }

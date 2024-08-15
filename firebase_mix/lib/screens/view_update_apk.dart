@@ -9,7 +9,10 @@ import 'package:firebase_mix/widgets/w_apk_dio_success.dart';
 class ViewUpdateApk extends StatefulWidget {
   final String apkUrl;
 
-  const ViewUpdateApk({super.key, required this.apkUrl});
+  const ViewUpdateApk({
+    super.key,
+    required this.apkUrl,
+  });
 
   @override
   ViewUpdateApkState createState() => ViewUpdateApkState();
