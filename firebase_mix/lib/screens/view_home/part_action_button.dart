@@ -35,8 +35,6 @@ class ActionButtonSection extends StatelessWidget {
       onPressed: () => showDialog(
         context: context,
         builder: (context) => WApkUpdateAlertDialog(
-          onUpdate: onUpdate,
-          onCancel: onCancel,
           versionDetail: updateHandler.remoteDetail,
           mobileVersion: updateHandler.remoteVersion,
           apkUrl: updateHandler.remoteApkUrl,

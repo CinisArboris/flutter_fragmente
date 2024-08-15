@@ -1,8 +1,9 @@
-import 'package:firebase_mix/screens/view_home/update_body.dart';
-import 'package:firebase_mix/screens/view_update_apk.dart';
-import 'package:firebase_mix/services/handler_view.dart';
-import 'package:firebase_mix/widgets/main_apk_dialog_update/w_apk_update_dialog.dart';
+import 'package:firebase_mix/screens/view_home/part_action_button.dart';
+import 'package:firebase_mix/screens/view_home/part_info_card_section.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_mix/services/handler_view.dart';
+import 'package:firebase_mix/screens/view_update_apk.dart';
+import 'package:firebase_mix/widgets/main_apk_dialog_update/w_apk_update_dialog.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -20,6 +21,7 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
   final HandlerView _updateHandler = HandlerView();
   bool _isDialogShown = false;
+  final String logPrefix = 'MyHomePage';
 
   @override
   void initState() {
@@ -29,20 +31,17 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _checkForUpdates() async {
-    _logWithSeparator('Iniciando verificación de actualizaciones...');
+    _log('Verificando actualizaciones...');
     await _updateHandler.checkForUpdates();
 
     if (!mounted) return;
     setState(() {});
 
-    _logWithSeparator(
-        'Verificando si se requiere actualización y si el diálogo ya se mostró.');
     if (!_updateHandler.isUpdateAvailable) {
-      _logWithSeparator(
-          'No se requiere actualización. Procediendo a limpieza...');
+      _log('No hay actualización. Limpieza.');
       await _updateHandler.cleanUp();
-    } else if (_updateHandler.isUpdateAvailable && !_isDialogShown) {
-      _logWithSeparator('Actualización disponible. Mostrando diálogo...');
+    } else if (!_isDialogShown) {
+      _log('Actualización disponible. Mostrando diálogo.');
       if (!mounted) return;
       _showUpdateDialog();
       _isDialogShown = true;
@@ -50,12 +49,10 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _showUpdateDialog() {
-    _logWithSeparator('Mostrando diálogo de actualización...');
+    _log('Mostrando diálogo de actualización.');
     showDialog(
       context: context,
       builder: (context) => WApkUpdateAlertDialog(
-        onUpdate: _onUpdate,
-        onCancel: _onCancel,
         versionDetail: _updateHandler.remoteDetail,
         mobileVersion: _updateHandler.remoteVersion,
         apkUrl: _updateHandler.remoteApkUrl,
@@ -64,8 +61,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _onUpdate() {
-    _logWithSeparator(
-        'Botón "Actualizar" presionado. Redirigiendo a la pantalla de descarga...');
+    _log('Iniciando actualización...');
     if (mounted) {
       Navigator.of(context).pop();
       Navigator.push(
@@ -79,16 +75,14 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void _onCancel() {
-    _logWithSeparator('Botón "Cancelar" presionado. Cerrando diálogo...');
+    _log('Cancelando actualización.');
     if (mounted) {
       Navigator.of(context).pop();
     }
   }
 
-  void _logWithSeparator(String message) {
-    debugPrint('\n================== MyHomePage ==================');
-    debugPrint(message);
-    debugPrint('================================================\n');
+  void _log(String message) {
+    debugPrint('$logPrefix: $message');
   }
 
   @override
@@ -97,8 +91,19 @@ class MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Remote Config Example'),
       ),
-      body: UpdateBody(
-        updateHandler: _updateHandler,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            InfoCardSection(updateHandler: _updateHandler),
+            ActionButtonSection(
+              updateHandler: _updateHandler,
+              onUpdate: _onUpdate,
+              onCancel: _onCancel,
+            ),
+          ],
+        ),
       ),
     );
   }

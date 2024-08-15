@@ -43,60 +43,77 @@ class ViewUpdateApkState extends State<ViewUpdateApk> {
   }
 
   void _startDownload() async {
-    // Actualizamos el estado antes de iniciar la descarga
-    setState(() {
-      isDownloading = true;
-      errorMessage = null;
-    });
+    // Verificar si el archivo APK ya existe
+    final fileExists = await TransformacionesAPK.checkIfApkExists();
 
-    try {
-      // Iniciar el proceso de descarga
-      await installer?.descargarEInstalarActualizacion(
-        onProgress: (progress) {
-          // Actualizar la UI con el progreso de la descarga si es necesario
-        },
-        onBytesDownloaded: (mbDownloaded) {
-          _downloadingWidgetKey.currentState
-              ?.updateBytesDownloaded(mbDownloaded);
-        },
-      );
-
-      // Verificar si el archivo realmente existe después de la descarga
-      final fileExists = await TransformacionesAPK.checkIfApkExists();
-
-      if (fileExists) {
-        setState(() {
-          isDownloading = false;
-          isInstalling = true;
-        });
-
-        // Iniciar el proceso de instalación directamente
-        final savePath = await TransformacionesAPK.getApkSavePath();
-        await installer?.installDownloadedUpdate(savePath);
-      } else {
-        // Si el archivo no se encuentra después de la descarga, mostramos un error
-        setState(() {
-          isDownloading = false;
-          errorMessage =
-              'El archivo APK no se encontró después de la descarga.';
-        });
-      }
-    } catch (error) {
-      // Capturamos cualquier error durante la descarga e instalación
-      if (error is DioException) {
-        // Especificar el tipo de error y el código de estado
-        setState(() {
-          isDownloading = false;
-          String errorType = error.type.toString();
-          String? statusCode = error.response?.statusCode?.toString();
-          errorMessage = 'Dio Error: $errorType, Código de estado: $statusCode';
-        });
-      } else {
+    if (fileExists) {
+      // Si el archivo ya existe, proceder directamente a la instalación
+      setState(() {
         isDownloading = false;
-        setState(() {
-          errorMessage =
-              'Error desconocido durante la descarga/instalación: $error';
-        });
+        isInstalling = true;
+      });
+
+      // Iniciar el proceso de instalación directamente
+      final savePath = await TransformacionesAPK.getApkSavePath();
+      await installer?.installDownloadedUpdate(savePath);
+    } else {
+      // Si el archivo no existe, proceder con la descarga
+      setState(() {
+        isDownloading = true;
+        errorMessage = null;
+      });
+
+      try {
+        // Iniciar el proceso de descarga e instalación
+        await installer?.descargarEInstalarActualizacion(
+          onProgress: (progress) {
+            // Actualizar la UI con el progreso de la descarga si es necesario
+          },
+          onBytesDownloaded: (mbDownloaded) {
+            _downloadingWidgetKey.currentState
+                ?.updateBytesDownloaded(mbDownloaded);
+          },
+        );
+
+        // Verificar si el archivo realmente existe después de la descarga
+        final fileExistsAfterDownload =
+            await TransformacionesAPK.checkIfApkExists();
+
+        if (fileExistsAfterDownload) {
+          setState(() {
+            isDownloading = false;
+            isInstalling = true;
+          });
+
+          // Iniciar el proceso de instalación directamente
+          final savePath = await TransformacionesAPK.getApkSavePath();
+          await installer?.installDownloadedUpdate(savePath);
+        } else {
+          // Si el archivo no se encuentra después de la descarga, mostramos un error
+          setState(() {
+            isDownloading = false;
+            errorMessage =
+                'El archivo APK no se encontró después de la descarga.';
+          });
+        }
+      } catch (error) {
+        // Capturamos cualquier error durante la descarga e instalación
+        if (error is DioException) {
+          // Especificar el tipo de error y el código de estado
+          setState(() {
+            isDownloading = false;
+            String errorType = error.type.toString();
+            String? statusCode = error.response?.statusCode?.toString();
+            errorMessage =
+                'Dio Error: $errorType, Código de estado: $statusCode';
+          });
+        } else {
+          setState(() {
+            isDownloading = false;
+            errorMessage =
+                'Error desconocido durante la descarga/instalación: $error';
+          });
+        }
       }
     }
   }

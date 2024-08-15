@@ -1,20 +1,17 @@
 import 'package:firebase_mix/screens/view_update_apk.dart';
+import 'package:firebase_mix/services/servicio_gestor_de_actualizacion.dart';
 import 'package:firebase_mix/utils_services/transformaciones_apk.dart';
+import 'package:firebase_mix/widgets/main_apk_dialog_update/dialog_content.dart';
+import 'package:firebase_mix/widgets/main_apk_dialog_update/dialog_title.dart';
 import 'package:flutter/material.dart';
-import 'dialog_title.dart';
-import 'dialog_content.dart';
 
 class WApkUpdateAlertDialog extends StatefulWidget {
-  final VoidCallback onUpdate;
-  final VoidCallback onCancel;
   final String versionDetail;
   final String mobileVersion;
   final String apkUrl;
 
   const WApkUpdateAlertDialog({
     super.key,
-    required this.onUpdate,
-    required this.onCancel,
     required this.versionDetail,
     required this.mobileVersion,
     required this.apkUrl,
@@ -43,7 +40,7 @@ class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
     if (updateDownloaded && fileExists) {
       _logWithSeparator(
           'Caso 1: APK descargado y archivo existe. Procediendo a instalación.');
-      widget.onUpdate(); // Proceder directamente a la instalación
+      await _startInstallation(); // Proceder directamente a la instalación
     } else if (!fileExists && widget.apkUrl.isNotEmpty) {
       _logWithSeparator(
           'Caso 2: APK no descargado o archivo no encontrado. Iniciando descarga.');
@@ -51,14 +48,24 @@ class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
     } else if (fileExists && !updateDownloaded) {
       _logWithSeparator(
           'Caso 3: Archivo encontrado pero marcado como no descargado. Procediendo a instalación.');
-      // En este caso, el archivo está presente, pero el flag indica que no está descargado.
-      // Esto puede ocurrir si el proceso fue interrumpido. Reajustamos el flag y procedemos a la instalación.
+      // Reajustamos el flag y procedemos a la instalación.
       await TransformacionesAPK.setApkUpdateDownloaded(true);
-      widget.onUpdate();
+      await _startInstallation();
     } else {
       _logWithSeparator(
           'No se pudo encontrar el archivo y no hay una URL válida para descargar.');
-      // Aquí podrías manejar el caso de error, mostrar un mensaje, etc.
+      // Manejar el caso de error, mostrar un mensaje, etc.
+    }
+  }
+
+  Future<void> _startInstallation() async {
+    final savePath = await TransformacionesAPK.getApkSavePath();
+    final installer = ServicioGestorDeActualizacion(widget.apkUrl);
+    await installer.installDownloadedUpdate(savePath);
+
+    if (mounted) {
+      Navigator.of(context)
+          .pop(); // Cerrar el diálogo después de la instalación
     }
   }
 
@@ -89,7 +96,7 @@ class WApkUpdateAlertDialogState extends State<WApkUpdateAlertDialog> {
           onPressed: () {
             _logWithSeparator('Botón "Cancelar" presionado');
             if (mounted) {
-              widget.onCancel();
+              Navigator.of(context).pop(); // Cerrar el diálogo al cancelar
             }
           },
           child: const Text(
