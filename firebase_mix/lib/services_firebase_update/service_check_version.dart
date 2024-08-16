@@ -1,4 +1,4 @@
-import 'package:firebase_mix/utils_services/transformaciones_apk.dart';
+import 'package:firebase_mix/utils_firebase_udpate/transformaciones_apk.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:install_plugin/install_plugin.dart';
-import '../utils_services/transformaciones_apk.dart';
+import '../utils_firebase_udpate/transformaciones_apk.dart';
 
 class ServicioGestorDeActualizacion {
   final String apkUrl;

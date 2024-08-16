@@ -1,9 +1,9 @@
-import 'package:firebase_mix/screens/view_home/part_action_button.dart';
-import 'package:firebase_mix/screens/view_home/part_info_card_section.dart';
+import 'package:firebase_mix/screen_firebase_update/view_home/part_action_button.dart';
+import 'package:firebase_mix/screen_firebase_update/view_home/part_info_card_section.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_mix/services/handler_view.dart';
-import 'package:firebase_mix/screens/view_update_apk.dart';
-import 'package:firebase_mix/widgets/main_apk_dialog_update/w_apk_update_dialog.dart';
+import 'package:firebase_mix/services_firebase_update/handler_view.dart';
+import 'package:firebase_mix/screen_firebase_update/view_update_apk.dart';
+import 'package:firebase_mix/widgets_firebase_update/main_apk_dialog_update/w_apk_update_dialog.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 class MyHomePage extends StatefulWidget {

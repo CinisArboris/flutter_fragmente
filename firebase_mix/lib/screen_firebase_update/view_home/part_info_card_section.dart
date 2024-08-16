@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_mix/widgets/w_info_card.dart';
-import 'package:firebase_mix/services/handler_view.dart';
+import 'package:firebase_mix/widgets_firebase_update/w_info_card.dart';
+import 'package:firebase_mix/services_firebase_update/handler_view.dart';
 
 class InfoCardSection extends StatelessWidget {
   final HandlerView updateHandler;

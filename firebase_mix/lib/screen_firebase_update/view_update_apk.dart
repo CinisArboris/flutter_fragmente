@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_mix/services/servicio_gestor_de_actualizacion.dart';
-import 'package:firebase_mix/utils_services/transformaciones_apk.dart';
-import 'package:firebase_mix/widgets/w_apk_dio_download.dart';
-import 'package:firebase_mix/widgets/w_apk_dio_error.dart';
-import 'package:firebase_mix/widgets/w_apk_dio_success.dart';
+import 'package:firebase_mix/services_firebase_update/servicio_gestor_de_actualizacion.dart';
+import 'package:firebase_mix/utils_firebase_udpate/transformaciones_apk.dart';
+import 'package:firebase_mix/widgets_firebase_update/w_apk_dio_download.dart';
+import 'package:firebase_mix/widgets_firebase_update/w_apk_dio_error.dart';
+import 'package:firebase_mix/widgets_firebase_update/w_apk_dio_success.dart';
 
 class ViewUpdateApk extends StatefulWidget {
   final String apkUrl;

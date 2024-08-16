@@ -1,8 +1,8 @@
-import 'package:firebase_mix/screens/view_update_apk.dart';
-import 'package:firebase_mix/services/servicio_gestor_de_actualizacion.dart';
-import 'package:firebase_mix/utils_services/transformaciones_apk.dart';
-import 'package:firebase_mix/widgets/main_apk_dialog_update/dialog_content.dart';
-import 'package:firebase_mix/widgets/main_apk_dialog_update/dialog_title.dart';
+import 'package:firebase_mix/screen_firebase_update/view_update_apk.dart';
+import 'package:firebase_mix/services_firebase_update/servicio_gestor_de_actualizacion.dart';
+import 'package:firebase_mix/utils_firebase_udpate/transformaciones_apk.dart';
+import 'package:firebase_mix/widgets_firebase_update/main_apk_dialog_update/dialog_content.dart';
+import 'package:firebase_mix/widgets_firebase_update/main_apk_dialog_update/dialog_title.dart';
 import 'package:flutter/material.dart';
 
 class WApkUpdateAlertDialog extends StatefulWidget {

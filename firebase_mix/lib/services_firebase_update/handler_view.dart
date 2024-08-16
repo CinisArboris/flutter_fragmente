@@ -1,4 +1,4 @@
-import 'package:firebase_mix/services/service_check_version.dart';
+import 'package:firebase_mix/services_firebase_update/service_check_version.dart';
 
 class HandlerView {
   final ServiceCheckVersion _versionCheckService = ServiceCheckVersion();

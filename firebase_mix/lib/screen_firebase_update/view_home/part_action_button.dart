@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_mix/screens/view_default_test.dart';
-import 'package:firebase_mix/services/handler_view.dart';
-import 'package:firebase_mix/widgets/main_apk_dialog_update/w_apk_update_dialog.dart';
+import 'package:firebase_mix/screen_firebase_update/view_default_test.dart';
+import 'package:firebase_mix/services_firebase_update/handler_view.dart';
+import 'package:firebase_mix/widgets_firebase_update/main_apk_dialog_update/w_apk_update_dialog.dart';
 
 class ActionButtonSection extends StatelessWidget {
   final HandlerView updateHandler;
